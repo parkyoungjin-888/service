@@ -15,7 +15,7 @@ RUN python3 -m venv $POETRY_VENV \
 # Add `poetry` to PATH
 ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
-COPY ../common /
+COPY ../../common /common
 WORKDIR /app
 
 # Install dependencies
