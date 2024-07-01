@@ -19,7 +19,9 @@ WORKDIR /app
 
 # Install dependencies
 COPY ./common /
+RUN ls -al /
 COPY . /app
+RUN ls -al /app
 RUN poetry install --no-interaction --no-cache --without dev
 
 CMD [ "python3", "app.py" ]
