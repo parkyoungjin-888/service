@@ -18,9 +18,10 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 WORKDIR /app
 
 # Install dependencies
+RUN ls -al /
 COPY ../common /
 COPY . /app
-RUN ls -al /
+RUN ls -al /app
 RUN poetry install --no-interaction --no-cache --without dev
 
 CMD [ "python3", "app.py" ]
