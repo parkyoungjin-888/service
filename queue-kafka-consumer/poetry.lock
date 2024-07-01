@@ -23,23 +23,6 @@ files = [
 ]
 
 [[package]]
-name = "config"
-version = "0.1.0"
-description = ""
-optional = false
-python-versions = ">=3.12,<4.0"
-files = [
-    {file = "config-0.1.0-py3-none-any.whl", hash = "sha256:bed1d5995ab4ca861723006fd3cb1c042acc34e085dc5311e3007701777e31b8"},
-]
-
-[package.dependencies]
-pymongo = ">=4.7.2,<5.0.0"
-
-[package.source]
-type = "file"
-url = "../../../common/config/dist/config-0.1.0-py3-none-any.whl"
-
-[[package]]
 name = "config-module"
 version = "0.1.0"
 description = ""
@@ -57,7 +40,7 @@ pymongo = "4.7.3"
 
 [package.source]
 type = "file"
-url = "../../../common/config_module/dist/config_module-0.1.0-py3-none-any.whl"
+url = "../../common/config_module/dist/config_module-0.1.0-py3-none-any.whl"
 
 [[package]]
 name = "dnspython"
@@ -199,13 +182,13 @@ setuptools = "*"
 
 [[package]]
 name = "influxdb-client"
-version = "1.43.0"
+version = "1.44.0"
 description = "InfluxDB 2.0 Python client library"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "influxdb_client-1.43.0-py3-none-any.whl", hash = "sha256:f079e63018f521024118bc0141b6403c65506711e2e6e93500f8e69f1675dc38"},
-    {file = "influxdb_client-1.43.0.tar.gz", hash = "sha256:ae2614d891baed52c0ae8f6194a04ee5b1c6422f6061318a3639fe63b7671b25"},
+    {file = "influxdb_client-1.44.0-py3-none-any.whl", hash = "sha256:e4c1ac9c9925c4693d63e988e22f65d2ddc1867f8910813b7f4721633175f2a0"},
+    {file = "influxdb_client-1.44.0.tar.gz", hash = "sha256:da9bc0cc49de4a0ac844d833c1efa65227ec5a2254e63cdbe07b5d532c0c37f8"},
 ]
 
 [package.dependencies]
@@ -223,22 +206,21 @@ test = ["aioresponses (>=0.7.3)", "coverage (>=4.0.3)", "flake8 (>=5.0.3)", "htt
 
 [[package]]
 name = "influxdb-module"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "influxdb_module-0.1.0-py3-none-any.whl", hash = "sha256:8b5c7162d16aa121c5eb7cd5a68ce4cb8a23ce435044f1eb4d4eef4373c1af17"},
+    {file = "influxdb_module-0.1.1-py3-none-any.whl", hash = "sha256:17e6fa7cc1996457a497ede4d3295a9abe6b6a7fe7aaca62b249ba77cf74fbdb"},
 ]
 
 [package.dependencies]
-config = {path = "C:/Users/pyj87/my_project/common/config/dist/config-0.1.0-py3-none-any.whl"}
 influxdb-client = ">=1.42.0,<2.0.0"
 pandas = ">=2.2.2,<3.0.0"
 
 [package.source]
 type = "file"
-url = "../../../common/database/influxdb_module/dist/influxdb_module-0.1.0-py3-none-any.whl"
+url = "../../common/database/influxdb_module/dist/influxdb_module-0.1.1-py3-none-any.whl"
 
 [[package]]
 name = "kafka-module"
@@ -256,7 +238,7 @@ pydantic = "2.7.4"
 
 [package.source]
 type = "file"
-url = "../../../common/message/kafka_module/dist/kafka_module-0.1.2-py3-none-any.whl"
+url = "../../common/message/kafka_module/dist/kafka_module-0.1.2-py3-none-any.whl"
 
 [[package]]
 name = "kafka-python-ng"
@@ -651,18 +633,18 @@ typing-extensions = ">=4.1.1,<5.0.0"
 
 [[package]]
 name = "setuptools"
-version = "70.0.0"
+version = "70.1.1"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-70.0.0-py3-none-any.whl", hash = "sha256:54faa7f2e8d2d11bcd2c07bed282eef1046b5c080d1c32add737d7b5817b1ad4"},
-    {file = "setuptools-70.0.0.tar.gz", hash = "sha256:f211a66637b8fa059bb28183da127d4e86396c991a942b028c6650d4319c3fd0"},
+    {file = "setuptools-70.1.1-py3-none-any.whl", hash = "sha256:a58a8fde0541dab0419750bcc521fbdf8585f6e5cb41909df3a472ef7b81ca95"},
+    {file = "setuptools-70.1.1.tar.gz", hash = "sha256:937a48c7cdb7a21eb53cd7f9b59e525503aa8abaf3584c730dc5f7a5bec3a650"},
 ]
 
 [package.extras]
 docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
-testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "mypy (==1.9)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.2.1)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
+testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (==1.10.0)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
 name = "six"
@@ -717,4 +699,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "3.12.3"
-content-hash = "32388d83fa79343f415264a098586820d3eefd8d0dc9d6c6688f42a0444a7e1d"
+content-hash = "64ae48884d16d392448f71962f639f2ec3575ebc25c88c35ccb56b0a2f84a225"

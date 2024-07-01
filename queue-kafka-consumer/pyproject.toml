@@ -7,9 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "3.12.3"
-config_module = {path="../../../common/config_module/dist/config_module-0.1.0-py3-none-any.whl"}
-kafka_module = {path="../../../common/message/kafka_module/dist/kafka_module-0.1.2-py3-none-any.whl"}
-influxdb_module = {path="../../../common/database/influxdb_module/dist/influxdb_module-0.1.0-py3-none-any.whl"}
+config_module = {path="../../common/config_module/dist/config_module-0.1.0-py3-none-any.whl"}
+kafka_module = {path="../../common/message/kafka_module/dist/kafka_module-0.1.2-py3-none-any.whl"}
+influxdb_module = {path="../../common/database/influxdb_module/dist/influxdb_module-0.1.1-py3-none-any.whl"}
 
 
 [build-system]
