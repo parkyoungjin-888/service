@@ -15,7 +15,8 @@ RUN python3 -m venv $POETRY_VENV \
 # Add `poetry` to PATH
 ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
-RUN mkdir /common
+ADD . /app
+
 COPY ../common /common
 WORKDIR /app
 
