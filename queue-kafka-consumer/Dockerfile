@@ -18,8 +18,7 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 WORKDIR /app
 
 # Install dependencies
-COPY ../common ./
-COPY poetry.lock pyproject.toml ./
+COPY . /app
 RUN poetry install --no-interaction --no-cache --without dev
 
 CMD [ "python3", "app.py" ]
