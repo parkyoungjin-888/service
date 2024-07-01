@@ -20,7 +20,7 @@ WORKDIR /app
 # Install dependencies
 COPY . /app
 RUN ls -al /app
-COPY ../../common /app
+# COPY ../common /common
 
 RUN poetry install --no-interaction --no-cache --without dev
 
