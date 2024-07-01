@@ -61,10 +61,10 @@ jobs:
   
         - name: Push Docker image to Docker Hub
           run: |
-            # docker push my-image
             for PROJECT_FOLDER in ${folders}; 
             do
-                docker push PROJECT_FOLDER
+                echo "$PROJECT_FOLDER"
+                docker push "$PROJECT_FOLDER"
             done
   
         # - name: SSH into server and deploy
