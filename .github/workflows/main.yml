@@ -1,0 +1,68 @@
+name: CI/CD Docker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**'
+
+jobs:
+  build:
+    name: build image
+    runs-on: ubuntu-22.04
+
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+
+        - name: Get changed files
+          id: changed-files
+          uses: tj-actions/changed-files@v44
+  
+        - name: List all changed files
+          env:
+            ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+          run: |
+            for file in ${ALL_CHANGED_FILES}; do
+              echo "$file"
+            done
+
+        - name: changed folder docker image build
+          env:
+            ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+          run: |
+            folders=$(echo "$ALL_CHANGED_FILES" | tr ' ' '\n' | cut -d '/' -f1 | sed '/.github/d' | sort -u)
+            BUILDED_IMAGES=()
+
+            for PROJECT_FOLDER in ${folders}; 
+            do
+                PROJECT_VERSION=$(grep -Po '(?<=version = ")[^"]*' ./"$PROJECT_FOLDER"/pyproject.toml || echo "")
+                if [ -n "$PROJECT_VERSION" ]; then
+                    echo "$PROJECT_FOLDER:$PROJECT_VERSION"
+                    docker build -t "$PROJECT_FOLDER":"$PROJECT_VERSION" ./"$PROJECT_FOLDER" || true
+                    if [ $? -eq 0 ]; then
+                        BUILDED_IMAGES+=("$PROJECT_FOLDER:$PROJECT_VERSION")
+                    fi
+                else
+                    echo "$PROJECT_FOLDER 폴더의 pyproject.toml 파일이 없거나 버전 정보를 찾을 수 없습니다."
+                fi
+            done
+  
+        # - name: Log in to Docker Hub
+        #   run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+  
+        # - name: Push Docker image to Docker Hub
+        #   run: docker push my-image
+  
+        # - name: SSH into server and deploy
+        #   uses: appleboy/ssh-action@master
+        #   with:
+        #     host: ${{ secrets.SERVER_IP }}
+        #     username: ${{ secrets.SERVER_USERNAME }}
+        #     key: ${{ secrets.SERVER_SSH_KEY }}
+        #     script: |
+        #       docker pull my-image
+        #       docker stop my-container || true
+        #       docker rm my-container || true
+        #       docker run -d --name my-container -p 80:80 my-image
