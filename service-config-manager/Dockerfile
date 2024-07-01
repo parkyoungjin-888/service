@@ -22,8 +22,6 @@ WORKDIR /service/app
 # Install dependencies
 COPY . /service/app
 RUN ls -al /service/app
-COPY ../common /common
-RUN ls -al /common
 
 RUN poetry install --no-interaction --no-cache --without dev
 
