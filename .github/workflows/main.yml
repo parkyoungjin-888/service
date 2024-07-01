@@ -19,7 +19,7 @@ jobs:
         - name: Checkout common
           uses: actions/checkout@v4
           with:
-            repository: parkyoungjin/common
+            repository: parkyoungjin-888/common
             path: common
             ref: main
 
