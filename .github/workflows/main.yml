@@ -19,7 +19,9 @@ jobs:
         - name: Checkout common
           uses: actions/checkout@v4
           with:
-            repository: <owner>/<repo>
+            repository: parkyoungjin/common
+            path: common
+            ref: main
 
         - name: Get changed files
           id: changed-files
