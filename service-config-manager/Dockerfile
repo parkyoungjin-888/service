@@ -17,6 +17,8 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
 WORKDIR /app
 
+COPY . .
+
 # Install dependencies
 COPY . /app
 RUN ls -al /app
