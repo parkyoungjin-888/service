@@ -18,7 +18,7 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 WORKDIR /app
 
 # Install dependencies
-RUN ls -al ./
+COPY common /
 COPY . /app
 RUN poetry install --no-interaction --no-cache --without dev
 
