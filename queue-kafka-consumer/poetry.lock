@@ -27,9 +27,9 @@ name = "config-module"
 version = "0.1.0"
 description = ""
 optional = false
-python-versions = "==3.12.3"
+python-versions = ">=3.12,<4.0"
 files = [
-    {file = "config_module-0.1.0-py3-none-any.whl", hash = "sha256:62cb70df40539ce3212dbe7ebe9320541fb17e80fb866d4c65f8f33dce00d833"},
+    {file = "config_module-0.1.0-py3-none-any.whl", hash = "sha256:e4980337bd8c8b513a9b2bfc28d233e53da9661805e4738554560c0ff3a7b644"},
 ]
 
 [package.dependencies]
@@ -227,9 +227,9 @@ name = "kafka-module"
 version = "0.1.2"
 description = ""
 optional = false
-python-versions = "==3.12.3"
+python-versions = ">=3.12,<4.0"
 files = [
-    {file = "kafka_module-0.1.2-py3-none-any.whl", hash = "sha256:7d2cb94d972b242caf2bbab5ec84889ee00dcf34a9bae0b75cfc0a5c9a4e69f0"},
+    {file = "kafka_module-0.1.2-py3-none-any.whl", hash = "sha256:3b8611dacc10a1560efd16f73358cfd9ef1482f121dfa2c91fc087cdb2325907"},
 ]
 
 [package.dependencies]
@@ -633,18 +633,18 @@ typing-extensions = ">=4.1.1,<5.0.0"
 
 [[package]]
 name = "setuptools"
-version = "70.1.1"
+version = "70.2.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-70.1.1-py3-none-any.whl", hash = "sha256:a58a8fde0541dab0419750bcc521fbdf8585f6e5cb41909df3a472ef7b81ca95"},
-    {file = "setuptools-70.1.1.tar.gz", hash = "sha256:937a48c7cdb7a21eb53cd7f9b59e525503aa8abaf3584c730dc5f7a5bec3a650"},
+    {file = "setuptools-70.2.0-py3-none-any.whl", hash = "sha256:b8b8060bb426838fbe942479c90296ce976249451118ef566a5a0b7d8b78fb05"},
+    {file = "setuptools-70.2.0.tar.gz", hash = "sha256:bd63e505105011b25c3c11f753f7e3b8465ea739efddaccef8f0efac2137bac1"},
 ]
 
 [package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
-testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (==1.10.0)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
+test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (==1.10.0)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
 name = "six"
@@ -698,5 +698,5 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = "3.12.3"
-content-hash = "64ae48884d16d392448f71962f639f2ec3575ebc25c88c35ccb56b0a2f84a225"
+python-versions = "^3.12"
+content-hash = "5aed476d4f735887aec890ef164ea72decea865b7d27581c544392be8f3e50a3"

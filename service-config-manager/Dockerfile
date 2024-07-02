@@ -19,8 +19,8 @@ WORKDIR /service/app
 
 # Install dependencies
 COPY ./common /common
-RUN rm -rf ./common
 COPY . /service/app
+RUN rm -rf ./common
 RUN ls -al /service/app
 RUN ls -al /
 

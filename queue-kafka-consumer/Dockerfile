@@ -15,15 +15,14 @@ RUN python3 -m venv $POETRY_VENV \
 # Add `poetry` to PATH
 ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
-COPY . .
-
 WORKDIR /service/app
 
 # Install dependencies
+COPY ./common /common
 COPY . /service/app
+RUN rm -rf ./common
 RUN ls -al /service/app
-COPY ../common /common
-RUN ls -al /common
+RUN ls -al /
 
 RUN poetry install --no-interaction --no-cache --without dev
 
