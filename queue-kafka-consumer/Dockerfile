@@ -23,6 +23,6 @@ COPY . /service/app
 RUN rm -rf ./common
 # RUN ls -al /service/app
 
-RUN poetry install --no-interaction --no-cache --without dev
+RUN poetry install --no-interaction --no-cache
 
 CMD [ "python3", "app.py" ]
