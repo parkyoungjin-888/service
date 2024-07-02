@@ -21,8 +21,7 @@ WORKDIR /service/app
 COPY ./common /common
 COPY . /service/app
 RUN rm -rf ./common
-RUN ls -al /service/app
-RUN ls -al /
+# RUN ls -al /service/app
 
 RUN poetry install --no-interaction --no-cache --without dev
 
