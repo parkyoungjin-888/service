@@ -59,7 +59,7 @@ jobs:
                     if [ $? -eq 0 ]; then
                         BUILDED_IMAGES+=("$PROJECT_FOLDER:$PROJECT_VERSION")
                     fi
-            echo "$BUILDED_IMAGES"
+                    echo "BUILDED_IMAGES : $BUILDED_IMAGES"
                 else
                     echo "$PROJECT_FOLDER 폴더의 pyproject.toml 파일이 없거나 버전 정보를 찾을 수 없습니다."
                 fi
