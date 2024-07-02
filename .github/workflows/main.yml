@@ -53,6 +53,7 @@ jobs:
                 PROJECT_VERSION=$(grep -Po '(?<=version = ")[^"]*' ./"$PROJECT_FOLDER"/pyproject.toml || echo "")
                 if [ -n "$PROJECT_VERSION" ]; then
                     echo "$PROJECT_FOLDER:$PROJECT_VERSION"
+                    cp -r ./common ./"$PROJECT_FOLDER"
                     docker build -t "$PROJECT_FOLDER":"$PROJECT_VERSION" ./"$PROJECT_FOLDER" || true
                     if [ $? -eq 0 ]; then
                         BUILDED_IMAGES+=("$PROJECT_FOLDER:$PROJECT_VERSION")
