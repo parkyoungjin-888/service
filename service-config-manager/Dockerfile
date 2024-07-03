@@ -25,9 +25,7 @@ RUN rm -rf ./common
 
 RUN poetry install --no-interaction --no-cache --no-root
 
-# Add Poetry's virtualenv to the path
-ENV PATH="${POETRY_VENV}/bin:${PATH}"
+# CMD [ "/bin/bash" ]
+CMD [ "poetry", "run", "python3", "app.py" ]
 
-# CMD [ "python3", "app.py" ]
 
-CMD [ "/bin/bash"]
