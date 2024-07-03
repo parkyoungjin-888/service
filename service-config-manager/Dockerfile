@@ -22,7 +22,12 @@ COPY ./common /common
 COPY . /service/app
 RUN rm -rf ./common
 # RUN ls -al /service/app
+
 RUN poetry install --no-interaction --no-cache --no-root
 
+# Add Poetry's virtualenv to the path
+ENV PATH="${POETRY_VENV}/bin:${PATH}"
+
 # CMD [ "python3", "app.py" ]
+
 CMD [ "/bin/bash"]
