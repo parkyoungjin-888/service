@@ -24,4 +24,5 @@ RUN rm -rf ./common
 # RUN ls -al /service/app
 RUN poetry install --no-interaction --no-cache --no-root
 
-CMD [ "python3", "app.py" ]
+# CMD [ "python3", "app.py" ]
+CMD [ "/bin/bash""]
