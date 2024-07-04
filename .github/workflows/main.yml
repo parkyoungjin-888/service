@@ -44,9 +44,6 @@ jobs:
         - name: Initialize IMAGE_LIST
           run: echo "IMAGE_LIST=" >> $GITHUB_ENV
 
-        - name: Log in to Docker Hub
-          run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
         - name: changed folder docker image build and push
           env:
             ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
@@ -65,8 +62,6 @@ jobs:
                     if [ $? -eq 0 ]; then
                         IMAGE_LIST="${IMAGE_LIST} $IMAGE_NAME"
                         echo "image build success : $IMAGE_NAME"
-                        docker push "$IMAGE_NAME"
-                        echo "image push success : $IMAGE_NAME"
                     fi
                 else
                     echo "$PROJECT_FOLDER 폴더의 pyproject.toml 파일이 없거나 버전 정보를 찾을 수 없습니다."
@@ -77,10 +72,14 @@ jobs:
         - name: Check build images
           run: docker images
 
+        - name: Log in to Docker Hub
+          run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
         - name: Use array
           run: |
-            for IMAGE in $IMAGE_LIST; do
-              echo $IMAGE
+            for IMAGE_NAME in $IMAGE_LIST; do
+              docker push "$IMAGE_NAME"
+              echo "image push success : $IMAGE_NAME"
             done
   
         # - name: SSH into server and deploy
