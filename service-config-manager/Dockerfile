@@ -22,7 +22,8 @@ WORKDIR /service/app
 COPY ./common /common
 COPY . /service/app
 RUN rm -rf ./common
-RUN poetry install --no-interaction --no-cache --no-root
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-cache --no-root
 
 # Stage 2: Runtime stage
 FROM python:3.12-slim
@@ -40,5 +41,5 @@ ENV PATH="${PATH}:/opt/poetry-venv/bin"
 WORKDIR /service/app
 
 # Activate virtual environment and run the application
-# CMD [ "/bin/bash" ]
-CMD ["/opt/poetry-venv/bin/python", "-m", "poetry", "run", "python3", "app.py"]
+CMD [ "/bin/bash" ]
+#CMD ["/opt/poetry-venv/bin/python", "-m", "poetry", "run", "python3", "app.py"]
