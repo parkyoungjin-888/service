@@ -1,4 +1,7 @@
-FROM python:3.12-slim
+# Stage 1: Build stage
+FROM python:3.12-slim as build
+
+# Install dependencies for building
 RUN apt-get update && apt-get install -y vim
 
 # Configure Poetry
@@ -21,11 +24,23 @@ WORKDIR /service/app
 COPY ./common /common
 COPY . /service/app
 RUN rm -rf ./common
-# RUN ls -al /service/app
-
 RUN poetry install --no-interaction --no-cache --no-root
 
+# Stage 2: Runtime stage
+FROM python:3.12-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y vim
+
+# Copy the poetry environment and the application
+COPY --from=build /opt/poetry-venv /opt/poetry-venv
+COPY --from=build /service/app /service/app
+
+# Add `poetry` to PATH
+ENV PATH="${PATH}:/opt/poetry-venv/bin"
+
+WORKDIR /service/app
+
+# Set the CMD to run the application
 # CMD [ "/bin/bash" ]
 CMD [ "poetry", "run", "python3", "app.py" ]
-
-
