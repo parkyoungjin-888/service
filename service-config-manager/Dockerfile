@@ -46,4 +46,4 @@ WORKDIR /service/app
 
 # Set the CMD to run the application
 # CMD [ "/bin/bash" ]
-CMD [ "poetry", "run", "python3", "app.py" ]
+CMD [ "/opt/poetry-venv/bin/poetry", "run", "python3", "app.py" ]
