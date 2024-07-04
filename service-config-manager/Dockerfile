@@ -33,6 +33,7 @@ FROM python:3.12-slim
 RUN apt-get update && apt-get install -y vim
 
 # Copy the poetry environment and the application
+COPY --from=build /opt/poetry /opt/poetry
 COPY --from=build /opt/poetry-venv /opt/poetry-venv
 COPY --from=build /service/app /service/app
 
