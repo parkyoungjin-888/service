@@ -39,6 +39,9 @@ COPY --from=build /service/app /service/app
 # Add `poetry` to PATH
 ENV PATH="${PATH}:/opt/poetry-venv/bin"
 
+# Set the PYTHONPATH to use the poetry venv
+ENV PYTHONPATH="/opt/poetry-venv/lib/python3.12/site-packages"
+
 WORKDIR /service/app
 
 # Set the CMD to run the application
