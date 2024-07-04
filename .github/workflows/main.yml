@@ -63,7 +63,7 @@ jobs:
                     IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/$PROJECT_FOLDER:$PROJECT_VERSION"
                     docker build -t "$IMAGE_NAME" ./"$PROJECT_FOLDER" || true
                     if [ $? -eq 0 ]; then
-                        IMAGE_LIST="${IMAGE_LIST} $$IMAGE_NAME"
+                        IMAGE_LIST="${IMAGE_LIST} $IMAGE_NAME"
                         echo "image build success : $IMAGE_NAME"
                         docker push "$IMAGE_NAME"
                         echo "image push success : $IMAGE_NAME"
