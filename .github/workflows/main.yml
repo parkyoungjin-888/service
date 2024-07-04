@@ -79,7 +79,7 @@ jobs:
 
         - name: Use array
           run: |
-            for IMAGE in IMAGE_LIST; do
+            for IMAGE in $IMAGE_LIST; do
               echo $IMAGE
             done
   
