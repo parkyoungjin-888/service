@@ -28,5 +28,5 @@ WORKDIR /service/app
 
 COPY --from=build /service/app /service/app
 
-CMD [ "/bin/bash" ]
-#CMD ["/opt/poetry-venv/bin/python", "-m", "poetry", "run", "python3", "app.py"]
+#CMD [ "/bin/bash" ]
+CMD ["python3", "app.py"]
