@@ -75,7 +75,7 @@ jobs:
         - name: Log in to Docker Hub
           run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-        - name: Use array
+        - name: docker image push
           run: |
             for IMAGE_NAME in $IMAGE_LIST; do
               docker push "$IMAGE_NAME"

@@ -26,4 +26,4 @@ def write_batch_data(messages: list[dict]):
 
 if __name__ == "__main__":
     kafka_consumer.start_consumer(write_batch_data)
-    print('1')
+    print('2')

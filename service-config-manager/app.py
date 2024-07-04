@@ -34,4 +34,4 @@ def serve():
 
 if __name__ == '__main__':
     serve()
-    print('1')
+    print('2')
