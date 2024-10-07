@@ -138,3 +138,4 @@ if __name__ == "__main__":
     capture_thread.join()
     send_thread.join()
     trim_thread.join()
+    # test
