@@ -8,9 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 opencv-python = "^4.10.0.84"
-
-config_module = {path="../../common/config_module/dist/config_module-0.1.0-py3-none-any.whl"}
-redis_module = {path="../../common/redis_module/dist/redis_module-0.1.1-py3-none-any.whl"}
+config_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "config_module" }
+redis_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "redis_module" }
 
 
 [build-system]

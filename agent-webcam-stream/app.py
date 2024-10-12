@@ -21,7 +21,7 @@ class CamStream:
         self._img_data_list = []
 
         self.show_img = show_img
-        self.running = True
+        self.in_streaming = False
 
     def _connect(self):
         self.cap = cv2.VideoCapture(self.device)
@@ -36,18 +36,21 @@ class CamStream:
             raise Exception(f'Cannot open cam {self.device}')
 
     def capture(self):
-        while self.running:
+        while True:
             try:
                 self._connect()
 
                 prev_time = datetime.now().timestamp()
                 frame_count = 0
                 fps = -1
-                while self.running:
+                while True:
                     ret, img = self.cap.read()
                     if not ret:
                         print('cap read is failed')
+                        self.in_streaming = False
                         break
+                    else:
+                        self.in_streaming = True
 
                     _timestamp = datetime.now().timestamp()
                     frame_count += 1
@@ -62,13 +65,13 @@ class CamStream:
                     self._img_data_list.append(img_data)
 
                     if self.show_img:
-                        if _timestamp - prev_time > 1:
+                        if _timestamp - prev_time > 0.1:
                             fps = frame_count
                             frame_count = 0
                             prev_time = _timestamp
                         cv2.putText(img, f'FPS: {fps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                         cv2.imshow('img', img)
-                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                        if cv2.waitKey(1) & 0xFF == 27 or cv2.waitKey(1) & 0xFF == ord('q'):
                             break
 
             except Exception as e:
@@ -77,35 +80,38 @@ class CamStream:
                 self.close()
 
     def send_stream(self):
-        while self.running:
+        while True:
             try:
+                if len(self._img_data_list) <= 0:
+                    continue
+
                 data_index = len(self._img_data_list)-1
                 send_data_list = self._img_data_list[:data_index]
-                data_ids = self._redis.put_img_data(**{'data': send_data_list})
+                data_ids = self._redis.put_img_data(**{'batch': send_data_list})
                 del self._img_data_list[:data_index]
-                # print(f'send data_ids : {data_ids}')
                 print(f'send data count : {len(data_ids)}')
 
-                time.sleep(1)
+                time.sleep(0.2)
             except Exception as e:
-                print(f'Error in trim_stream: {e}')
+                print(f'Error in send_stream: {e}')
             finally:
                 pass
 
     def trim_stream(self):
-        while self.running:
+        while True:
             try:
                 remove_count = self._redis.remove_expired_data()
                 if remove_count != 0:
                     print(f'remove_count : {remove_count}')
-                time.sleep(1)
+
+                time.sleep(0.2)
             except Exception as e:
                 print(f'Error in trim_stream: {e}')
             finally:
                 pass
 
     def close(self):
-        self.running = False
+        self.in_streaming = False
         if self.cap.isOpened():
             self.cap.release()
         cv2.destroyAllWindows()
@@ -138,4 +144,3 @@ if __name__ == "__main__":
     capture_thread.join()
     send_thread.join()
     trim_thread.join()
-    # test
