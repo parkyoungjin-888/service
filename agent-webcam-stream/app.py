@@ -1,6 +1,7 @@
 import sys
 import signal
 import threading
+import asyncio
 import time
 from datetime import datetime
 import cv2
@@ -10,18 +11,20 @@ from redis_module.redis_stream_control import RedisStreamControl
 
 
 class CamStream:
-    def __init__(self, redis: dict, device: int = 0, img_w: int = None, img_h: int = None, fps: int = None,
+    def __init__(self,
+                 redis_control: RedisStreamControl,
+                 device: int = 0, img_w: int = None, img_h: int = None, fps: int = None,
                  show_img: bool = False):
         self.device = device
         self.img_w = img_w
         self.img_h = img_h
         self.fps = fps
-
-        self._redis = RedisStreamControl(**redis)
-        self._img_data_list = []
-
+        self._redis = redis_control
         self.show_img = show_img
         self.in_streaming = False
+
+        self._loop = asyncio.get_event_loop()
+        self._img_queue = asyncio.Queue()
 
     def _connect(self):
         self.cap = cv2.VideoCapture(self.device)
@@ -35,7 +38,7 @@ class CamStream:
         if not self.cap.isOpened():
             raise Exception(f'Cannot open cam {self.device}')
 
-    def capture(self):
+    async def _capture(self):
         while True:
             try:
                 self._connect()
@@ -43,6 +46,7 @@ class CamStream:
                 prev_time = datetime.now().timestamp()
                 frame_count = 0
                 fps = -1
+                img_data_list = []
                 while True:
                     ret, img = self.cap.read()
                     if not ret:
@@ -62,53 +66,66 @@ class CamStream:
                         'height': img.shape[0],
                         'img': img
                     }
-                    self._img_data_list.append(img_data)
+                    img_data_list.append(img_data)
+
+                    if _timestamp - prev_time > 1:
+                        fps = frame_count
+                        frame_count = 0
+                        prev_time = _timestamp
+                        await self._img_queue.put(img_data_list)
+                        img_data_list = []
 
                     if self.show_img:
-                        if _timestamp - prev_time > 0.1:
-                            fps = frame_count
-                            frame_count = 0
-                            prev_time = _timestamp
                         cv2.putText(img, f'FPS: {fps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                         cv2.imshow('img', img)
                         if cv2.waitKey(1) & 0xFF == 27 or cv2.waitKey(1) & 0xFF == ord('q'):
                             break
+
+                    await asyncio.sleep(0.01)
 
             except Exception as e:
                 print(f'Error in stream: {e}')
             finally:
                 self.close()
 
-    def send_stream(self):
+    async def _send_stream(self):
         while True:
             try:
-                if len(self._img_data_list) <= 0:
+                if self._img_queue.qsize() <= 0:
                     continue
 
-                data_index = len(self._img_data_list)-1
-                send_data_list = self._img_data_list[:data_index]
+                send_data_list = await self._img_queue.get()
+
+                # data_index = len(self._img_queue)-1
+                # send_data_list = self._img_queue[:data_index]
+
                 data_ids = self._redis.put_img_data(**{'batch': send_data_list})
-                del self._img_data_list[:data_index]
+                # del self._img_queue[:data_index]
                 print(f'send data count : {len(data_ids)}')
 
-                time.sleep(0.2)
             except Exception as e:
                 print(f'Error in send_stream: {e}')
             finally:
-                pass
+                await asyncio.sleep(1)
 
-    def trim_stream(self):
+    async def _trim_stream(self):
         while True:
             try:
                 remove_count = self._redis.remove_expired_data()
                 if remove_count != 0:
                     print(f'remove_count : {remove_count}')
 
-                time.sleep(0.2)
+                # time.sleep(0.2)
             except Exception as e:
                 print(f'Error in trim_stream: {e}')
             finally:
-                pass
+                await asyncio.sleep(1)
+
+    def steam(self):
+        self._loop.create_task(self._capture())
+        self._loop.create_task(self._send_stream())
+        self._loop.create_task(self._trim_stream())
+        self._loop.run_forever()
 
     def close(self):
         self.in_streaming = False
@@ -128,19 +145,12 @@ if __name__ == "__main__":
     config = ConfigSingleton()
     config.load_config('192.168.0.104', 31001, 'agent-webcam-stream-001')
 
-    cam = CamStream(**config.get_value('webcam'))
+    redis_config = config.get_value('redis')
+    redis_stream_control = RedisStreamControl(**redis_config)
+    cam_config = config.get_value('webcam')
+    cam = CamStream(**cam_config, redis_control=redis_stream_control)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    capture_thread = threading.Thread(target=cam.capture)
-    send_thread = threading.Thread(target=cam.send_stream)
-    trim_thread = threading.Thread(target=cam.trim_stream)
-
-    capture_thread.start()
-    send_thread.start()
-    trim_thread.start()
-
-    capture_thread.join()
-    send_thread.join()
-    trim_thread.join()
+    cam.steam()
