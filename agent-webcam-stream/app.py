@@ -1,3 +1,4 @@
+import os
 import sys
 import signal
 import threading
@@ -137,16 +138,25 @@ class CamStream:
 
 def signal_handler(sig, frame):
     cam.close()
-    time.sleep(1)
     sys.exit(0)
 
 
 if __name__ == "__main__":
+    local_config_host = '192.168.0.104'
+    local_config_port = 31001
+    local_app_id = 'agent-webcam-stream-001'
+
     config = ConfigSingleton()
-    config.load_config('192.168.0.104', 31001, 'agent-webcam-stream-001')
+    config_host = os.environ.get('CONFIG_HOST') if os.environ.get('CONFIG_HOST') else local_config_host
+    config_port = int(os.environ.get('CONFIG_PORT')) if os.environ.get('CONFIG_PORT') else local_config_port
+
+    app_id = os.environ.get('APP_ID') if os.environ.get('APP_ID') else local_app_id
+    config.load_config(host=config_host, port=config_port, app_id=app_id)
+    print(f'config load data, host : {config_host}, port : {config_port}, app_id : {app_id}')
 
     redis_config = config.get_value('redis')
     redis_stream_control = RedisStreamControl(**redis_config)
+
     cam_config = config.get_value('webcam')
     cam = CamStream(**cam_config, redis_control=redis_stream_control)
 
