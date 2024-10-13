@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "queue-kafka-producer"
+version = "0.1.0"
+description = ""
+authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+config_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "config_module" }
+redis_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "redis_module" }
+kafka_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "kafka_module" }
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
