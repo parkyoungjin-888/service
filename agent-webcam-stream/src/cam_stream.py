@@ -74,11 +74,11 @@ class CamStream:
                         await self._img_queue.put(img_data_list)
                         img_data_list = []
 
-                    if self.show_img:
-                        cv2.putText(img, f'FPS: {fps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                        cv2.imshow('img', img)
-                        if cv2.waitKey(1) & 0xFF == 27 or cv2.waitKey(1) & 0xFF == ord('q'):
-                            break
+                    # if self.show_img:
+                    #     cv2.putText(img, f'FPS: {fps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    #     cv2.imshow('img', img)
+                    #     if cv2.waitKey(1) & 0xFF == 27 or cv2.waitKey(1) & 0xFF == ord('q'):
+                    #         break
 
                     await asyncio.sleep(0.01)
 
