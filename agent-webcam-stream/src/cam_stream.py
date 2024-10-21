@@ -1,9 +1,20 @@
 import asyncio
+import time
 from datetime import datetime
 import cv2
+from prometheus_client import Counter, Histogram, Gauge, start_http_server
 
 from config_module.config_singleton import ConfigSingleton
 from redis_module.redis_stream_control import RedisStreamControl
+
+
+start_http_server(8000)
+CAPTURE_LATENCY = Histogram('capture_latency', 'webcam capture latency')
+WEBCAM_FPS = Histogram('webcam_fps', 'webcam FPS')
+SEND_LATENCY = Histogram('send_latency', 'image send latency')
+SEND_COUNT = Counter('send_count', 'total number of send img')
+TRIM_LATENCY = Histogram('trim_latency', 'stream trim latency')
+REMOVE_COUNT = Counter('remove_count', 'total number of remove img')
 
 
 class CamStream:
@@ -45,8 +56,8 @@ class CamStream:
                 prev_time = datetime.now().timestamp()
                 frame_count = 0
                 fps = -1
-                img_data_list = []
                 while True:
+                    capture_start = time.time()
                     ret, img = self.cap.read()
                     if not ret:
                         print('cap read is failed')
@@ -65,14 +76,13 @@ class CamStream:
                         'height': img.shape[0],
                         'img': img
                     }
-                    img_data_list.append(img_data)
+                    await self._img_queue.put(img_data)
 
                     if _timestamp - prev_time > 1:
                         fps = frame_count
+                        WEBCAM_FPS.observe(fps)
                         frame_count = 0
                         prev_time = _timestamp
-                        await self._img_queue.put(img_data_list)
-                        img_data_list = []
 
                     # if self.show_img:
                     #     cv2.putText(img, f'FPS: {fps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -81,6 +91,7 @@ class CamStream:
                     #         break
 
                     await asyncio.sleep(0.01)
+                    CAPTURE_LATENCY.observe(time.time() - capture_start)
 
             except Exception as e:
                 print(f'Error in stream: {e}')
@@ -90,18 +101,18 @@ class CamStream:
     async def _send_stream(self):
         while True:
             try:
+                send_start = time.time()
                 if not self.in_streaming or self._img_queue.qsize() <= 0:
                     continue
 
-                send_data_list = await self._img_queue.get()
-
-                # data_index = len(self._img_queue)-1
-                # send_data_list = self._img_queue[:data_index]
-
+                send_data_list = []
+                while self._img_queue.qsize() > 0:
+                    send_data = await self._img_queue.get()
+                    send_data_list.append(send_data)
                 data_ids = self._redis.put_img_data(**{'batch': send_data_list})
-                # del self._img_queue[:data_index]
                 print(f'send data count : {len(data_ids)}')
-
+                SEND_COUNT.inc(len(data_ids))
+                SEND_LATENCY.observe(time.time() - send_start)
             except Exception as e:
                 print(f'Error in send_stream: {e}')
             finally:
@@ -110,11 +121,12 @@ class CamStream:
     async def _trim_stream(self):
         while True:
             try:
+                trim_start = time.time()
                 remove_count = self._redis.remove_expired_data()
                 if remove_count != 0:
                     print(f'remove_count : {remove_count}')
-
-                # time.sleep(0.2)
+                    REMOVE_COUNT.inc(remove_count)
+                    TRIM_LATENCY.observe(time.time() - trim_start)
             except Exception as e:
                 print(f'Error in trim_stream: {e}')
             finally:
