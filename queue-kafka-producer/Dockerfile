@@ -22,7 +22,7 @@ FROM python:3.12-slim
 
 ENV PATH="/service/app/.venv/bin:$PATH"
 
-RUN apt-get update && apt-get install -y vim qt5-default libxcb-xinerama0-dev
+RUN apt-get update && apt-get install -y vim libgl1-mesa-glx libglib2.0-0 pkg-config
 
 WORKDIR /service/app
 
