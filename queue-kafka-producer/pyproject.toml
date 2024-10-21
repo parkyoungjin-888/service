@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "queue-kafka-producer"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
 readme = "README.md"
@@ -10,6 +10,7 @@ python = "^3.12"
 config_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "config_module" }
 redis_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "redis_module" }
 kafka_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "kafka_module" }
+prometheus-client = "^0.21.0"
 
 
 [build-system]

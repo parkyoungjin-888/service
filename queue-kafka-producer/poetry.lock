@@ -30,7 +30,7 @@ pymongo = "4.7.3"
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "4789e1038bcac5c5c0e7f22ab9dfc69470a2bd31"
+resolved_reference = "1f0ef855f75c22835fcd8febf7b8f28705a38b06"
 subdirectory = "config_module"
 
 [[package]]
@@ -50,7 +50,7 @@ pydantic = "^2.9.2"
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "4789e1038bcac5c5c0e7f22ab9dfc69470a2bd31"
+resolved_reference = "1f0ef855f75c22835fcd8febf7b8f28705a38b06"
 subdirectory = "data_model_module"
 
 [[package]]
@@ -208,7 +208,7 @@ kafka-python-ng = "2.2.2"
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "4789e1038bcac5c5c0e7f22ab9dfc69470a2bd31"
+resolved_reference = "1f0ef855f75c22835fcd8febf7b8f28705a38b06"
 subdirectory = "kafka_module"
 
 [[package]]
@@ -309,6 +309,20 @@ files = [
 
 [package.dependencies]
 numpy = {version = ">=1.26.0", markers = "python_version >= \"3.12\""}
+
+[[package]]
+name = "prometheus-client"
+version = "0.21.0"
+description = "Python client for the Prometheus monitoring system."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "prometheus_client-0.21.0-py3-none-any.whl", hash = "sha256:4fa6b4dd0ac16d58bb587c04b1caae65b8c5043e85f778f42f5f632f6af2e166"},
+    {file = "prometheus_client-0.21.0.tar.gz", hash = "sha256:96c83c606b71ff2b0a433c98889d275f51ffec6c5e267de37c7a2b5c9aa9233e"},
+]
+
+[package.extras]
+twisted = ["twisted"]
 
 [[package]]
 name = "protobuf"
@@ -567,18 +581,18 @@ redis = "^5.1.0"
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "4789e1038bcac5c5c0e7f22ab9dfc69470a2bd31"
+resolved_reference = "1f0ef855f75c22835fcd8febf7b8f28705a38b06"
 subdirectory = "redis_module"
 
 [[package]]
 name = "setuptools"
-version = "75.1.0"
+version = "75.2.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-75.1.0-py3-none-any.whl", hash = "sha256:35ab7fd3bcd95e6b7fd704e4a1539513edad446c097797f2985e0e4b960772f2"},
-    {file = "setuptools-75.1.0.tar.gz", hash = "sha256:d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538"},
+    {file = "setuptools-75.2.0-py3-none-any.whl", hash = "sha256:a7fcb66f68b4d9e8e66b42f9876150a3371558f98fa32222ffaa5bced76406f8"},
+    {file = "setuptools-75.2.0.tar.gz", hash = "sha256:753bb6ebf1f465a1912e19ed1d41f403a79173a9acf66a42e7e6aec45c3c16ec"},
 ]
 
 [package.extras]
@@ -604,4 +618,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "68c7036de14592eba5f0af83aba9d9152d8f7a652d7095dc96ffda15526f3d0a"
+content-hash = "3b5841ab381ba756c6d27174b94ea9ae54dde9f90ca1febc5a0c82fb64fff4d1"

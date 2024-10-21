@@ -2,6 +2,7 @@ import os
 import sys
 import signal
 import time
+from prometheus_client import Counter, Histogram, Gauge, start_http_server
 
 from config_module.config_singleton import ConfigSingleton
 from redis_module.redis_stream_control import RedisStreamControl
@@ -25,6 +26,10 @@ print(f'config load data, host : "{config_host}", port : {config_port}, app_id :
 # endregion
 
 # region ############################## service define section ##############################
+
+start_http_server(config.get_value('prometheus_port'))
+PRODUCING_LATENCY = Histogram('producing_latency', 'image send latency')
+PRODUCING_COUNT = Counter('producing_count', 'total number of send img')
 
 redis_stream_control = RedisStreamControl(**config.get_value('redis'))
 kafka_producer = KafkaProducerControl(**config.get_value('kafka'))
@@ -53,12 +58,15 @@ def producing():
 
     while True:
         try:
+            producing_start = time.time()
             read_data = read_func(count=batch_size)
             if read_data is None:
                 continue
 
             for data in read_data['batch']:
                 send_func(**data)
+            PRODUCING_COUNT.inc(len(read_data['batch']))
+            PRODUCING_LATENCY.observe(time.time() - producing_start)
 
         except Exception as e:
             print(f'Error in run: {e}')
