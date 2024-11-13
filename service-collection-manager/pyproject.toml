@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "service-collection-manager"
+version = "0.1.0"
+description = ""
+authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pymongo = "4.9.2"
+config_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "config_module" }
+mongodb_module = { path = "../../common/mongodb_module"}
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
