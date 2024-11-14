@@ -1,16 +1,18 @@
 import os
 import grpc
 import asyncio
+import importlib
 from concurrent import futures
 from google.protobuf.json_format import MessageToDict
 from pydantic import ValidationError
 from functools import wraps
+from google.protobuf import struct_pb2
 
 from config_module.config_singleton import ConfigSingleton
 from mongodb_module.proto import collection_pb2 as pb2
 from mongodb_module.proto import collection_pb2_grpc
 from mongodb_module.beanie_control import BaseDocument, BeanieControl
-from mongodb_module.beanie_data_model.user_model import User, ProjectUser
+# from mongodb_module.beanie_data_model.user_model import User, ProjectUser
 
 
 # region ############################## config section ##############################
@@ -76,27 +78,44 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
-    @grpc_server_error_handler(pb2.CountResponse())
-    async def GetCount(self, request, context):
-        _filter = MessageToDict(request.filter)
-        project = MessageToDict(request.project)
-        res = await self.collection_model.find(_filter).count()
+    @grpc_server_error_handler(pb2.DocListResponse())
+    async def GetMany(self, request, context):
+        find_key = MessageToDict(request.filter)
+        project_model = import_model(request.project_model, data_model_module)
+        sort = request.sort
+        page_size = request.page_size
+        page_num = request.page_num
+        res = await self.collection_model.find_with_paginate(find_key, project_model=project_model)
 
-        response = pb2.CountResponse()
-        response.count = res
+        response = pb2.DocListResponse()
+        for r in res:
+            doc = struct_pb2.Struct()
+            if '_id' in r:
+                r['_id'] = str(r['_id'])
+            doc.update(r)
+            response.doc_list.append(doc)
+
+        response.total_count = len(res)
         response.code = 200
         return response
 
 
+def import_model(class_name, module_name):
+    module = importlib.import_module(module_name)
+    return getattr(module, class_name)
+
+
 async def serve():
+    model = import_model(model_name, data_model_module)
+
     mongo_config = config.get_value('mongo')
     beanie_control = BeanieControl(**mongo_config)
-    await beanie_control.init([User])
+    await beanie_control.init([model])
 
     app_config = config.get_value('app')
 
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=10))
-    collection_pb2_grpc.add_CollectionServerServicer_to_server(CollectionServer(User), server)
+    collection_pb2_grpc.add_CollectionServerServicer_to_server(CollectionServer(model), server)
     server.add_insecure_port(f'[::]:{app_config['port']}')
     await server.start()
 
@@ -108,4 +127,7 @@ async def serve():
 
 
 if __name__ == '__main__':
+    data_model_module = 'mongodb_module.beanie_data_model.user_model'
+    model_name = 'User'
+
     asyncio.run(serve())
