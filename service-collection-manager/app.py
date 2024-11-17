@@ -2,6 +2,7 @@ import os
 import grpc
 import asyncio
 import importlib
+from bson import ObjectId
 from concurrent import futures
 from google.protobuf.json_format import MessageToDict
 from pydantic import ValidationError
@@ -52,6 +53,18 @@ def grpc_server_error_handler(response):
     return decorator
 
 
+def get_query_request_data(request, model_module):
+    project_model = import_model(request.project_model, model_module) if request.HasField('project_model') else None
+    query_request_dict = {
+        'query': MessageToDict(request.query),
+        'project_model': project_model,
+        'sort': list(request.sort) if len(request.sort) > 0 else None,
+        'page_size': request.page_size if request.HasField('page_size') else None,
+        'page_num': request.page_num if request.HasField('page_num') else None
+    }
+    return query_request_dict
+
+
 class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
     def __init__(self, collection_model: type[BaseDocument]):
         self.collection_model = collection_model
@@ -78,24 +91,56 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @grpc_server_error_handler(pb2.DocResponse())
+    async def GetTag(self, request, context):
+        field_list = request.field_list
+        query = MessageToDict(request.query) if request.HasField('query') else None
+        response = pb2.DocResponse()
+        doc_struct = struct_pb2.Struct()
+        for field in field_list:
+            res = await self.collection_model.distinct(key=field, filter=query)
+
+            if field == '_id':
+                res = [str(r) for r in res]
+            doc_struct.update({field: res})
+
+        response.doc = doc_struct
+        response.code = 200
+        return response
+
+    @grpc_server_error_handler(pb2.DocResponse())
+    async def GetOne(self, request, context):
+        doc_id = ObjectId(request.doc_id)
+        res = await self.collection_model.find_one({'_id': doc_id})
+
+        response = pb2.DocResponse()
+        if res is None:
+            response.code = 400
+            response.message = f'doc is not found, doc_id : {doc_id}'
+            return response
+
+        res = res.model_dump(by_alias=True)
+        if '_id' in res:
+            res['_id'] = str(res['_id'])
+        response.doc = res
+
+        response.code = 200
+        return response
+
     @grpc_server_error_handler(pb2.DocListResponse())
     async def GetMany(self, request, context):
-        find_key = MessageToDict(request.filter)
-        project_model = import_model(request.project_model, data_model_module)
-        sort = request.sort
-        page_size = request.page_size
-        page_num = request.page_num
-        res = await self.collection_model.find_with_paginate(find_key, project_model=project_model)
+        query_request_data = get_query_request_data(request, data_model_module)
+        res = await self.collection_model.find_with_paginate(**query_request_data)
 
         response = pb2.DocListResponse()
-        for r in res:
-            doc = struct_pb2.Struct()
-            if '_id' in r:
-                r['_id'] = str(r['_id'])
-            doc.update(r)
-            response.doc_list.append(doc)
+        for doc in res['doc_list']:
+            doc_struct = struct_pb2.Struct()
+            if '_id' in doc:
+                doc['_id'] = str(doc['_id'])
+            doc_struct.update(doc)
+            response.doc_list.append(doc_struct)
 
-        response.total_count = len(res)
+        response.total_count = res['total_count']
         response.code = 200
         return response
 
