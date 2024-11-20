@@ -8,6 +8,7 @@ from google.protobuf.json_format import MessageToDict
 from pydantic import ValidationError
 from functools import wraps
 from google.protobuf import struct_pb2
+from pymongo import UpdateMany
 
 from config_module.config_singleton import ConfigSingleton
 from mongodb_module.proto import collection_pb2 as pb2
@@ -99,9 +100,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         doc_struct = struct_pb2.Struct()
         for field in field_list:
             res = await self.collection_model.distinct(key=field, filter=query)
-
-            if field == '_id':
-                res = [str(r) for r in res]
+            res = [{'value': str(r), 'type': type(r).__name__} for r in res]
             doc_struct.update({field: res})
 
         response.doc = doc_struct
@@ -123,7 +122,6 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         if '_id' in res:
             res['_id'] = str(res['_id'])
         response.doc = res
-
         response.code = 200
         return response
 
@@ -141,6 +139,33 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
             response.doc_list.append(doc_struct)
 
         response.total_count = res['total_count']
+        response.code = 200
+        return response
+
+    @grpc_server_error_handler(pb2.CountResponse())
+    async def UpdateMany(self, request, context):
+        update_req_list = request.update_request_list
+
+        bulk_write_req = []
+        for update_req in update_req_list:
+            req = {'filter': MessageToDict(update_req.query, preserving_proto_field_name=True), 'update': {}}
+            if update_req.HasField('set'):
+                req['update'].update({'$set': MessageToDict(update_req.set, preserving_proto_field_name=True)})
+            if update_req.HasField('unset'):
+                req['update'].update({'$unset': MessageToDict(update_req.unset, preserving_proto_field_name=True)})
+            if update_req.HasField('push'):
+                req['update'].update({'$push': MessageToDict(update_req.push, preserving_proto_field_name=True)})
+            if update_req.HasField('array_filter'):
+                req['array_filters'] = [MessageToDict(update_req.array_filter, preserving_proto_field_name=True)]
+            if update_req.HasField('upsert'):
+                req['upsert'] = update_req.upsert
+            if req['update'] == {}:
+                continue
+            bulk_write_req.append(UpdateMany(**req))
+        res = await self.collection_model.get_motor_collection().bulk_write(bulk_write_req)
+
+        response = pb2.CountResponse()
+        response.count = res.modified_count
         response.code = 200
         return response
 
