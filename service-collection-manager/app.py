@@ -169,6 +169,33 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @grpc_server_error_handler(pb2.CountResponse())
+    async def DeleteMany(self, request, context):
+        query = MessageToDict(request.query)
+        res = await self.collection_model.delete_many(query)
+
+        response = pb2.CountResponse()
+        response.count = res
+        response.code = 200
+        return response
+
+    @grpc_server_error_handler(pb2.DocListResponse())
+    async def Aggregate(self, request, context):
+        pipeline = [MessageToDict(p, preserving_proto_field_name=True) for p in request.pipeline]
+        res = await self.collection_model.aggregate(pipeline).to_list()
+
+        response = pb2.DocListResponse()
+        for doc in res:
+            doc_struct = struct_pb2.Struct()
+            if '_id' in doc:
+                doc['_id'] = str(doc['_id'])
+            doc_struct.update(doc)
+            response.doc_list.append(doc_struct)
+
+        response.total_count = len(res)
+        response.code = 200
+        return response
+
 
 def import_model(class_name, module_name):
     module = importlib.import_module(module_name)
