@@ -20,7 +20,7 @@ utils_module = {git = "https://github.com/parkyoungjin-888/common.git", subdirec
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "c108587caa093b638129ebf1cd66d140a6dcaac1"
+resolved_reference = "a33159fb6d0aaff04b0af837dd1cbfe70cc92d70"
 subdirectory = "config_module"
 
 [[package]]
@@ -313,7 +313,7 @@ develop = false
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "c108587caa093b638129ebf1cd66d140a6dcaac1"
+resolved_reference = "a33159fb6d0aaff04b0af837dd1cbfe70cc92d70"
 subdirectory = "utils_module"
 
 [metadata]
