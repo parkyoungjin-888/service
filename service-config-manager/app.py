@@ -4,6 +4,8 @@ from concurrent import futures
 from config_module.proto import config_pb2
 from config_module.proto import config_pb2_grpc
 from config_module.config_loader import ConfigLoader
+import logging
+from utils_module.logger import LoggerSingleton
 
 
 # region ############################## config section ##############################
@@ -14,7 +16,8 @@ local_app_id = 'service-config-manager-001'
 config_url = os.environ.get('CONFIG_URL') if os.environ.get('CONFIG_URL') else local_config_url
 app_id = os.environ.get('APP_ID') if os.environ.get('APP_ID') else local_app_id
 config_loader = ConfigLoader(config_db_path=config_url, app_id=app_id)
-print(f'config load data, url : "{config_url}", app_id : {app_id}')
+logger = LoggerSingleton.get_logger('app_logger', file_name='./log/app.log', level=logging.DEBUG)
+logger.info(f'config load data, url : "{config_url}", app_id : {app_id}')
 
 # endregion
 
@@ -39,7 +42,7 @@ def serve():
     server.add_insecure_port(f'[::]:{config_loader.port}')
     server.start()
 
-    print(f'{config_loader.name} serve start : 0.0.0.0:{config_loader.port}')
+    logger.info(f'{config_loader.name} serve start : 0.0.0.0:{config_loader.port}')
 
     server.wait_for_termination()
 

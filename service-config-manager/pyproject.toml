@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-config_module = {path="../../common/config_module/dist/config_module-0.1.0-py3-none-any.whl"}
+config_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "config_module" }
 
 
 [build-system]
