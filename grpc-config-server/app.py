@@ -10,8 +10,8 @@ from utils_module.logger import LoggerSingleton
 
 # region ############################## config section ##############################
 
-local_config_url = 'mongodb://your-username:your-password@192.168.0.105:27017,192.168.0.105:27018/?replicaSet=rs0'
-local_app_id = 'service-config-manager-001'
+local_config_url = 'mongodb://yj:dudwls123@192.168.0.104:27017'
+local_app_id = 'grpc-config-server-001'
 
 config_url = os.environ.get('CONFIG_URL') if os.environ.get('CONFIG_URL') else local_config_url
 app_id = os.environ.get('APP_ID') if os.environ.get('APP_ID') else local_app_id
