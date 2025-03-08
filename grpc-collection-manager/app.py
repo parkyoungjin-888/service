@@ -34,18 +34,17 @@ logger.info(f'config load data, host : {config_host}, port : {config_port}, app_
 # region ############################## service define section ##############################
 
 async def serve():
-    model_config = config.get_value('model')
-    data_model = import_model(**model_config)
+    data_model_name = config.get_value('data_model_name')
+    data_model = import_model(data_model_name)
 
     mongo_config = config.get_value('mongo')
     beanie_control = BeanieControl(**mongo_config)
     data_model = await beanie_control.init(data_model)
 
     app_config = config.get_value('app')
-    collection_server_config = {'data_model': data_model, 'module_name': model_config['module_name']}
 
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=10))
-    collection_pb2_grpc.add_CollectionServerServicer_to_server(CollectionServer(**collection_server_config), server)
+    collection_pb2_grpc.add_CollectionServerServicer_to_server(CollectionServer(data_model), server)
     server.add_insecure_port(f'[::]:{app_config['port']}')
 
     await server.start()
