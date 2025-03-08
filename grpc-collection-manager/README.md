@@ -21,4 +21,5 @@ poetry install --no-root
 ```
 
 ## History
-+ v0.1.0: init
++ v0.1.0: init 
++ v0.1.1: data_model_module 버전업 0.1.3

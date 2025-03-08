@@ -30,13 +30,12 @@ def grpc_server_error_handler(response):
 
 
 class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
-    def __init__(self, data_model, module_name: str):
-        self.module_name = module_name
+    def __init__(self, data_model):
         self.collection_model = data_model
 
     def _get_query_request_data(self, request):
         if request.HasField('project_model'):
-            project_model = import_model(self.module_name, request.project_model)
+            project_model = import_model(request.project_model)
         else:
             project_model = None
 
