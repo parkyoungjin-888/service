@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fastapi-collection-server"
+name = "fastapi-collection-manager"
 version = "0.1.0"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
