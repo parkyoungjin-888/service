@@ -5,6 +5,7 @@ from pydantic import BaseModel, ValidationError
 from functools import wraps
 from google.protobuf import struct_pb2
 from pymongo import UpdateMany
+from datetime import datetime
 
 from mongodb_module.proto import collection_pb2 as pb2
 from mongodb_module.proto import collection_pb2_grpc
@@ -29,18 +30,81 @@ def grpc_server_error_handler(response):
     return decorator
 
 
+def conv_datetime(date_str: str):
+    date_formats = [
+        '%Y-%m-%d',  # 2025-03-09
+        '%Y/%m/%d',  # 2025/03/09
+        '%Y-%m-%d %H:%M:%S',  # 2025-03-09 12:30:45
+    ]
+    for d_f in date_formats:
+        try:
+            return datetime.strptime(date_str, d_f)
+        except ValueError:
+            continue
+
+    raise ValueError(f'format of {date_str} is unknown date format')
+
+
+def convert_field_type(value):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            # _id convert str -> ObjectId
+            if key == '_id' and isinstance(item, str) and ObjectId.is_valid(item):
+                value['_id'] = ObjectId(value['_id'])
+                print(f'_id has been converted from string to object id, input : {value}')
+            elif key == '_id' and isinstance(item, dict) and '$in' in value['_id']:
+                value['_id']['$in'] = [ObjectId(_id) for _id in value['_id']['$in']]
+                print(f'_id has been converted from string to object id, input : {value}')
+
+            # datetime field convert
+            # type : dict -> $gte, $lte convert (str -> datetime)
+            # type : str -> datetime_field convert (str -> datetime)
+            elif key.endswith('_datetime') and isinstance(item, dict):
+                for v_k_k, v_k_v in value[key].items():
+                    try:
+                        value[key][v_k_k] = conv_datetime(v_k_v) if not isinstance(v_k_v, datetime) else v_k_v
+                    except Exception as e:
+                        raise ValueError(f'{key} / {v_k_k} convert (str -> datetime) is failed,  {e}')
+            elif key.endswith('_datetime') and isinstance(item, str):
+                try:
+                    value[key] = conv_datetime(item) if not isinstance(item, datetime) else item
+                except Exception as e:
+                    raise ValueError(f'{key} convert (str -> datetime) is failed, {e}')
+
+            elif isinstance(item, dict):
+                value[key] = convert_field_type(item)
+            elif isinstance(item, list):
+                item_list = []
+                for i in item:
+                    item_list.append(convert_field_type(i))
+                value[key] = item_list
+            else:
+                value[key] = item
+        return value
+
+    elif isinstance(value, list):
+        value_list = []
+        for v in value:
+            value_list.append(convert_field_type(v))
+        return value_list
+    else:
+        return value
+
+
 class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
     def __init__(self, data_model):
         self.collection_model = data_model
 
-    def _get_query_request_data(self, request):
+    @staticmethod
+    def _get_query_request_data(request):
         if request.HasField('project_model'):
             project_model = import_model(request.project_model)
         else:
             project_model = None
 
+        query = MessageToDict(request.query, preserving_proto_field_name=True)
         query_request_dict = {
-            'query': MessageToDict(request.query),
+            'query': convert_field_type(query),
             'project_model': project_model,
             'sort': list(request.sort) if len(request.sort) > 0 else None,
             'page_size': request.page_size if request.HasField('page_size') else None,
@@ -51,6 +115,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
     @grpc_server_error_handler(pb2.IdResponse())
     async def InsertOne(self, request, context):
         doc = MessageToDict(request.doc)
+        doc = convert_field_type(doc)
         valid_doc = self.collection_model(**doc)
         res = await self.collection_model.insert_one(valid_doc)
 
@@ -61,7 +126,8 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
 
     @grpc_server_error_handler(pb2.IdListResponse())
     async def InsertMany(self, request, context):
-        doc_list = [MessageToDict(doc, preserving_proto_field_name=True) for doc in request.doc_list]
+        doc_list = [convert_field_type(MessageToDict(doc, preserving_proto_field_name=True))
+                    for doc in request.doc_list]
         valid_doc_list = [self.collection_model(**doc) for doc in doc_list]
         res = await self.collection_model.insert_many(valid_doc_list)
 
@@ -73,7 +139,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
     @grpc_server_error_handler(pb2.DocResponse())
     async def GetTag(self, request, context):
         field_list = request.field_list
-        query = MessageToDict(request.query) if request.HasField('query') else None
+        query = MessageToDict(request.query, preserving_proto_field_name=True) if request.HasField('query') else None
         response = pb2.DocResponse()
         doc_struct = struct_pb2.Struct()
         for field in field_list:
@@ -126,7 +192,8 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
 
         bulk_write_req = []
         for update_req in update_req_list:
-            req = {'filter': MessageToDict(update_req.query, preserving_proto_field_name=True), 'update': {}}
+            query = MessageToDict(update_req.query, preserving_proto_field_name=True)
+            req = {'filter': convert_field_type(query), 'update': {}}
             if update_req.HasField('set'):
                 req['update'].update({'$set': MessageToDict(update_req.set, preserving_proto_field_name=True)})
             if update_req.HasField('unset'):
@@ -149,7 +216,8 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
 
     @grpc_server_error_handler(pb2.CountResponse())
     async def DeleteMany(self, request, context):
-        query = MessageToDict(request.query)
+        query = MessageToDict(request.query, preserving_proto_field_name=True)
+        query = convert_field_type(query)
         res = await self.collection_model.delete_many(query)
 
         response = pb2.CountResponse()

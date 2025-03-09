@@ -16,7 +16,7 @@ from data_model_module.beanie_data_model.model_importer import import_model
 
 local_config_host = '192.168.0.104'
 local_config_port = 21001
-local_app_id = 'grpc-collection-manager-001'
+local_app_id = 'grpc-img-process-manager-001'
 
 config = ConfigSingleton()
 config_host = os.environ.get('CONFIG_HOST') if os.environ.get('CONFIG_HOST') else local_config_host
