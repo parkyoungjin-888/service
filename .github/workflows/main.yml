@@ -111,9 +111,8 @@ jobs:
             
             cd k8s-app
             for IMAGE_NAME in $IMAGE_LIST; do
-              APP_NAME=$(echo "$IMAGE_NAME" | cut -d '/' -f2 | cut -d ':' -f1)
-              echo "app_name : $APP_NAME"
-              sed -i "s|image: $APP_NAME:.*|image: $IMAGE_NAME|" deployment.yaml
+              IMAGE_NAME_NO_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f1)
+              sed -i "s|image: $IMAGE_NAME_NO_TAG:.*|image: $IMAGE_NAME|" deployment.yaml
             done
 
         - name: Commit and Push Changes
