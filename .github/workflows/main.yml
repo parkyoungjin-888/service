@@ -125,9 +125,10 @@ jobs:
             
             cd k8s-app
             for IMAGE_NAME in $IMAGE_LIST; do
+              IMAGE_NAME_NO_DOCKER_USERNAME=$(echo "$IMAGE_NAME" | cut -d '/' -f2)
               git config --global user.name "parkyoungjin-888"
               git config --global user.email "pyj8813@gmail.com"
               git add deployment.yaml
-              git commit -m "Update image to $IMAGE_NAME"
+              git commit -m "Update image to $IMAGE_NAME_NO_DOCKER_USERNAME"
             done
             git push
