@@ -1,4 +1,4 @@
-name: CI/CD Docker
+name: CI/CD
 
 on:
   push:
@@ -48,6 +48,8 @@ jobs:
           env:
             ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
           run: |
+            set -e
+            
             folders=$(echo "$ALL_CHANGED_FILES" | tr ' ' '\n' | cut -d '/' -f1 | sed '/.github/d' | sort -u)
             BUILDED_IMAGES=()
 
@@ -58,7 +60,7 @@ jobs:
                     echo "$PROJECT_FOLDER:$PROJECT_VERSION"
                     cp -r ./common ./"$PROJECT_FOLDER"
                     IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/$PROJECT_FOLDER:$PROJECT_VERSION"
-                    docker build -t "$IMAGE_NAME" ./"$PROJECT_FOLDER" || true
+                    docker build -t "$IMAGE_NAME" ./"$PROJECT_FOLDER"
                     if [ $? -eq 0 ]; then
                         IMAGE_LIST="${IMAGE_LIST} $IMAGE_NAME"
                         echo "image build success : $IMAGE_NAME"
@@ -75,21 +77,34 @@ jobs:
         - name: Log in to Docker Hub
           run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-        - name: docker image push
+        - name: Docker image push
           run: |
             for IMAGE_NAME in $IMAGE_LIST; do
               docker push "$IMAGE_NAME"
               echo "image push success : $IMAGE_NAME"
             done
-  
-        # - name: SSH into server and deploy
-        #   uses: appleboy/ssh-action@master
-        #   with:
-        #     host: ${{ secrets.SERVER_IP }}
-        #     username: ${{ secrets.SERVER_USERNAME }}
-        #     key: ${{ secrets.SERVER_SSH_KEY }}
-        #     script: |
-        #       docker pull my-image
-        #       docker stop my-container || true
-        #       docker rm my-container || true
-        #       docker run -d --name my-container -p 80:80 my-image
+
+        - name: checkout k8s-manifests Repository
+          uses: actions/checkout@v4
+          with:
+            repository: parkyoungjin-888/k8s-app
+            path: k8s-app
+            ref: main
+            token: ${{ secrets.MY_GITHUB_TOKEN }}
+
+        - name: Update Deployment YAML with new image
+          run: |
+            for IMAGE_NAME in $IMAGE_LIST; do
+              APP_NAME=$(echo "$IMAGE_NAME" | cut -d '/' -f2 | cut -d ':' -f1)
+              sed -i "s|image: $APP_NAME:.*|image: $IMAGE_NAME|" deployment.yaml
+            done
+
+        - name: Commit and Push Changes
+          run: |
+            for IMAGE_NAME in $IMAGE_LIST; do
+              git config --global user.name "parkyoungjin-888"
+              git config --global user.email "pyj8813@gmail.com"
+              git add deployment.yaml
+              git commit -m "Update image to $IMAGE_NAME"
+            done
+            git push
