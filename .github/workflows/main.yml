@@ -84,7 +84,7 @@ jobs:
               echo "image push success : $IMAGE_NAME"
             done
 
-        - name: checkout k8s-manifests Repository
+        - name: checkout k8s-app Repository
           uses: actions/checkout@v4
           with:
             repository: parkyoungjin-888/k8s-app
@@ -92,10 +92,16 @@ jobs:
             ref: main
             token: ${{ secrets.MY_GITHUB_TOKEN }}
 
+        - name: Print current directory structure
+          run: |
+            echo "Current directory structure:"
+            ls -R
+
         - name: Update Deployment YAML with new image
           run: |
             for IMAGE_NAME in $IMAGE_LIST; do
               APP_NAME=$(echo "$IMAGE_NAME" | cut -d '/' -f2 | cut -d ':' -f1)
+              echo "app_name : $APP_NAME"
               sed -i "s|image: $APP_NAME:.*|image: $IMAGE_NAME|" deployment.yaml
             done
 
