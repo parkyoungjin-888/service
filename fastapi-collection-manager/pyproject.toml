@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastapi-collection-manager"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
 readme = "README.md"

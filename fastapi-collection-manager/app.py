@@ -11,7 +11,7 @@ from utils_module.logger import LoggerSingleton
 
 local_config_host = '192.168.0.104'
 local_config_port = 21001
-local_app_id = 'fastapi-collection-server-001'
+local_app_id = 'fastapi-collection-manager-001'
 
 config = ConfigSingleton()
 config_host = os.environ.get('CONFIG_HOST') if os.environ.get('CONFIG_HOST') else local_config_host
