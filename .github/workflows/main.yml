@@ -77,6 +77,11 @@ jobs:
 
         - name: Docker image push
           run: |
+            if [ -z "$IMAGE_LIST" ]; then
+              echo "No images, Skipping this step."
+              exit 0
+            fi
+            
             for IMAGE_NAME in $IMAGE_LIST; do
               docker push "$IMAGE_NAME"
               echo "image push success : $IMAGE_NAME"
@@ -90,13 +95,20 @@ jobs:
             ref: main
             token: ${{ secrets.MY_GITHUB_TOKEN }}
 
-        - name: Print current directory structure
+
+        - name: Change directory & Print current directory structure
           run: |
+            cd k8s-app
             echo "Current directory structure:"
             ls -R
 
         - name: Update Deployment YAML with new image
           run: |
+            if [ -z "$IMAGE_LIST" ]; then
+              echo "No images, Skipping this step."
+              exit 0
+            fi
+            
             for IMAGE_NAME in $IMAGE_LIST; do
               APP_NAME=$(echo "$IMAGE_NAME" | cut -d '/' -f2 | cut -d ':' -f1)
               echo "app_name : $APP_NAME"
@@ -105,6 +117,11 @@ jobs:
 
         - name: Commit and Push Changes
           run: |
+            if [ -z "$IMAGE_LIST" ]; then
+              echo "No images, Skipping this step."
+              exit 0
+            fi
+            
             for IMAGE_NAME in $IMAGE_LIST; do
               git config --global user.name "parkyoungjin-888"
               git config --global user.email "pyj8813@gmail.com"
