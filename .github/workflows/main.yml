@@ -109,6 +109,7 @@ jobs:
               exit 0
             fi
             
+            cd k8s-app
             for IMAGE_NAME in $IMAGE_LIST; do
               APP_NAME=$(echo "$IMAGE_NAME" | cut -d '/' -f2 | cut -d ':' -f1)
               echo "app_name : $APP_NAME"
@@ -122,6 +123,7 @@ jobs:
               exit 0
             fi
             
+            cd k8s-app
             for IMAGE_NAME in $IMAGE_LIST; do
               git config --global user.name "parkyoungjin-888"
               git config --global user.email "pyj8813@gmail.com"
