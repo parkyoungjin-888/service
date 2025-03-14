@@ -108,7 +108,7 @@ jobs:
             for IMAGE_NAME in $IMAGE_LIST; do
               ONLY_IMAGE_NAME=$(echo "$IMAGE_NAME" | cut -d ':' -f1 | cut -d '/' -f2)
               IMAGE_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f2)
-              EDIT_FILE = ./manifests/$ONLY_IMAGE_NAME/values.yaml
+              EDIT_FILE = "./manifests/$ONLY_IMAGE_NAME/values.yaml"
               sed -i "s|tag: .*|tag: $IMAGE_TAG|" $EDIT_FILE
             
               git config --global user.name "parkyoungjin-888"
