@@ -87,18 +87,18 @@ jobs:
               echo "image push success : $IMAGE_NAME"
             done
 
-        - name: checkout k8s-app Repository
+        - name: checkout k8s-deployment Repository
           uses: actions/checkout@v4
           with:
-            repository: parkyoungjin-888/k8s-app
-            path: k8s-app
+            repository: parkyoungjin-888/k8s-deployment
+            path: k8s-deployment
             ref: main
             token: ${{ secrets.MY_GITHUB_TOKEN }}
 
 
         - name: Change directory & Print current directory structure
           run: |
-            cd k8s-app
+            cd k8s-deployment
             echo "Current directory structure:"
             ls -R
 
@@ -109,10 +109,12 @@ jobs:
               exit 0
             fi
             
-            cd k8s-app
+            cd k8s-deployment
             for IMAGE_NAME in $IMAGE_LIST; do
-              IMAGE_NAME_NO_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f1)
-              sed -i "s|image: $IMAGE_NAME_NO_TAG:.*|image: $IMAGE_NAME|" deployment.yaml
+              ONLY_IMAGE_NAME=$(echo "$IMAGE_NAME" | cut -d ':' -f1 | cut -d '/' -f2)
+              IMAGE_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f2)
+              sed -i "s|tag: .*|tag: $IMAGE_TAG|" ./manifests/$ONLY_IMAGE_NAME/values.yaml
+
             done
 
         - name: Commit and Push Changes
