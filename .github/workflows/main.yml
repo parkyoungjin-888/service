@@ -97,23 +97,24 @@ jobs:
 
         - name: Update values.yaml and push
           run: |
-            if [ -z "$IMAGE_LIST" ]; then
+            if [[ -z "$IMAGE_LIST" ]]; then
               echo "No images, Skipping this step."
               exit 0
             fi
-            
-            echo "Current directory structure:"
-            ls -R
-            
+
+            cd k8s-deployment
+
             for IMAGE_NAME in $IMAGE_LIST; do
               ONLY_IMAGE_NAME=$(echo "$IMAGE_NAME" | cut -d ':' -f1 | cut -d '/' -f2)
               IMAGE_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f2)
-              EDIT_FILE = "./manifests/$ONLY_IMAGE_NAME/values.yaml"
-              sed -i "s|tag: .*|tag: $IMAGE_TAG|" $EDIT_FILE
-            
-              git config --global user.name "parkyoungjin-888"
-              git config --global user.email "pyj8813@gmail.com"
-              git add EDIT_FILE
-              git commit -m "Update image to $IMAGE_NAME"
+              EDIT_FILE="./manifests/$ONLY_IMAGE_NAME/values.yaml"
+
+              sed -i "s|tag: .*|tag: $IMAGE_TAG|" "$EDIT_FILE"
+              git add "$EDIT_FILE"
             done
+
+            git config --global user.name "parkyoungjin-888"
+            git config --global user.email "pyj8813@gmail.com"
+
+            git commit -m "Update image to $IMAGE_LIST"
             git push
