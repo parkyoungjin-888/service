@@ -22,4 +22,4 @@ poetry install --no-root
 
 ## History
 + v0.1.0: init 
-+ v0.1.1-beta: github action 테스트 중 8
++ v0.1.1-beta: github action 테스트 중 9
