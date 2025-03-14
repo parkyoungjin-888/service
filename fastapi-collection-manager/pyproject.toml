@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fastapi-collection-manager"
+name = "fastapi-img-process-manager"
 version = "0.1.1-beta"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
