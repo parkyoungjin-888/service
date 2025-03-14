@@ -95,40 +95,25 @@ jobs:
             ref: main
             token: ${{ secrets.MY_GITHUB_TOKEN }}
 
-
-        - name: Change directory & Print current directory structure
-          run: |
-            cd k8s-deployment
-            echo "Current directory structure:"
-            ls -R
-
-        - name: Update Deployment YAML with new image
+        - name: Update values.yaml and push
           run: |
             if [ -z "$IMAGE_LIST" ]; then
               echo "No images, Skipping this step."
               exit 0
             fi
             
-            cd k8s-deployment
+            echo "Current directory structure:"
+            ls -R
+            
             for IMAGE_NAME in $IMAGE_LIST; do
               ONLY_IMAGE_NAME=$(echo "$IMAGE_NAME" | cut -d ':' -f1 | cut -d '/' -f2)
               IMAGE_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f2)
-              sed -i "s|tag: .*|tag: $IMAGE_TAG|" ./manifests/$ONLY_IMAGE_NAME/values.yaml
-
-            done
-
-        - name: Commit and Push Changes
-          run: |
-            if [ -z "$IMAGE_LIST" ]; then
-              echo "No images, Skipping this step."
-              exit 0
-            fi
+              EDIT_FILE = ./manifests/$ONLY_IMAGE_NAME/values.yaml
+              sed -i "s|tag: .*|tag: $IMAGE_TAG|" $EDIT_FILE
             
-            cd k8s-deployment
-            for IMAGE_NAME in $IMAGE_LIST; do
               git config --global user.name "parkyoungjin-888"
               git config --global user.email "pyj8813@gmail.com"
-              git add deployment.yaml
+              git add EDIT_FILE
               git commit -m "Update image to $IMAGE_NAME"
             done
             git push
