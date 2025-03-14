@@ -124,7 +124,7 @@ jobs:
               exit 0
             fi
             
-            cd k8s-app
+            cd k8s-deployment
             for IMAGE_NAME in $IMAGE_LIST; do
               git config --global user.name "parkyoungjin-888"
               git config --global user.email "pyj8813@gmail.com"
