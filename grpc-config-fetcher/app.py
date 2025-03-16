@@ -9,7 +9,7 @@ from utils_module.logger import LoggerSingleton
 
 # region ############################## config section ##############################
 
-port = os.environ.get('CONFIG_URL', 21001)
+port = os.environ.get('SERVER_PORT', 21001)
 
 local_config_url = f'mongodb://yj:dudwls123@192.168.0.104:27017'
 config_url = os.environ.get('CONFIG_URL', local_config_url)
