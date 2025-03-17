@@ -16,7 +16,7 @@ config_url = os.environ.get('CONFIG_URL', local_config_url)
 config_loader = ConfigLoader(config_db_path=config_url)
 
 logger = LoggerSingleton.get_logger('app_logger', file_name='./log/app.log', level='DEBUG')
-logger.info(f'config load data, config_url : {config_url}')
+logger.info(f'config load data, port: {port}, config_url : {config_url}')
 
 # endregion
 
