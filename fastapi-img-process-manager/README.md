@@ -22,4 +22,5 @@ poetry install --no-root
 
 ## History
 + v0.1.0: init 
-+ v0.1.1-beta: github action 테스트 중 15
++ v0.1.1~2: argocd 테스트로 사용
++ v0.1.3: 로그 추가
