@@ -1,7 +1,8 @@
+import os
 import grpc
 from bson import ObjectId
 from google.protobuf.json_format import MessageToDict
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from functools import wraps
 from google.protobuf import struct_pb2
 from pymongo import UpdateMany
@@ -10,6 +11,16 @@ from datetime import datetime
 from mongodb_module.proto import collection_pb2 as pb2
 from mongodb_module.proto import collection_pb2_grpc
 from data_model_module.beanie_data_model.model_importer import import_model
+from config_module.config_singleton import ConfigSingleton
+from utils_module.logger import LoggerSingleton
+from utils_module.log_decorator import log_decorator
+
+
+config = ConfigSingleton()
+app_config = config.get_value('app')
+
+log_level = os.environ.get('LOG_LEVEL', 'DEBUG')
+logger = LoggerSingleton.get_logger(f'{app_config["name"]}.grpc', level=log_level)
 
 
 def grpc_server_error_handler(response):
@@ -51,10 +62,10 @@ def convert_field_type(value):
             # _id convert str -> ObjectId
             if key == '_id' and isinstance(item, str) and ObjectId.is_valid(item):
                 value['_id'] = ObjectId(value['_id'])
-                print(f'_id has been converted from string to object id, input : {value}')
+                logger.info(f'_id has been converted from string to object id, input : {value}')
             elif key == '_id' and isinstance(item, dict) and '$in' in value['_id']:
                 value['_id']['$in'] = [ObjectId(_id) for _id in value['_id']['$in']]
-                print(f'_id has been converted from string to object id, input : {value}')
+                logger.info(f'_id has been converted from string to object id, input : {value}')
 
             # datetime field convert
             # type : dict -> $gte, $lte convert (str -> datetime)
@@ -112,6 +123,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         }
         return query_request_dict
 
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.IdResponse())
     async def InsertOne(self, request, context):
         doc = MessageToDict(request.doc)
@@ -124,6 +136,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.IdListResponse())
     async def InsertMany(self, request, context):
         doc_list = [convert_field_type(MessageToDict(doc, preserving_proto_field_name=True))
@@ -136,6 +149,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.DocResponse())
     async def GetTag(self, request, context):
         field_list = request.field_list
@@ -151,6 +165,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.DocResponse())
     async def GetOne(self, request, context):
         doc_id = ObjectId(request.doc_id)
@@ -169,6 +184,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.DocListResponse())
     async def GetMany(self, request, context):
         query_request_data = self._get_query_request_data(request)
@@ -186,6 +202,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.CountResponse())
     async def UpdateMany(self, request, context):
         update_req_list = request.update_request_list
@@ -214,6 +231,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.CountResponse())
     async def DeleteMany(self, request, context):
         query = MessageToDict(request.query, preserving_proto_field_name=True)
@@ -225,6 +243,7 @@ class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
         response.code = 200
         return response
 
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.DocListResponse())
     async def Aggregate(self, request, context):
         pipeline = [MessageToDict(p, preserving_proto_field_name=True) for p in request.pipeline]
