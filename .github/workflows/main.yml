@@ -105,16 +105,11 @@ jobs:
             cd k8s-deployment
 
             for IMAGE_NAME in $IMAGE_LIST; do
-              ONLY_IMAGE_NAME=$(echo "$IMAGE_NAME" | cut -d ':' -f1 | cut -d '/' -f2)
-              IMAGE_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f2)
-              EDIT_FILE="./manifests/$ONLY_IMAGE_NAME/values.yaml"
-
-              sed -i "s|tag: .*|tag: $IMAGE_TAG|" "$EDIT_FILE"
+              IMAGE_NAME_NO_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f1)
+              EDIT_FILE="./manifests/*/values.yaml"
+              sed -i "s|image: $IMAGE_NAME_NO_TAG:.*|image: $IMAGE_NAME|" "$EDIT_FILE"
               git add "$EDIT_FILE"
             done
-
-            git config --global user.name "parkyoungjin-888"
-            git config --global user.email "pyj8813@gmail.com"
 
             git commit -m "Update image to $IMAGE_LIST"
             git push
