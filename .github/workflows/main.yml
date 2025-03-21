@@ -106,10 +106,16 @@ jobs:
 
             for IMAGE_NAME in $IMAGE_LIST; do
               IMAGE_NAME_NO_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f1)
-              EDIT_FILE="./manifests/*/values.yaml"
-              sed -i "s|image: $IMAGE_NAME_NO_TAG:.*|image: $IMAGE_NAME|" "$EDIT_FILE"
-              git add "$EDIT_FILE"
+  
+              for EDIT_FILE in ./manifests/*/values.yaml; do
+                sed -i "s|image: *$IMAGE_NAME_NO_TAG:.*|image: $IMAGE_NAME|" "$EDIT_FILE"
+                git add "$EDIT_FILE"
+              done
             done
 
-            git commit -m "Update image to $IMAGE_LIST"
-            git push
+            if git diff --cached --quiet; then
+              echo "No changes to commit."
+            else
+              git commit -m "Update image to $IMAGE_LIST"
+              git push
+            fi
