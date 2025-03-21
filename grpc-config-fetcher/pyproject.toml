@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "service-config-fetcher"
-version = "0.1.3-beta"
+version = "0.1.3"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
 readme = "README.md"
