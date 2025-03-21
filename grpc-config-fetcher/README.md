@@ -21,4 +21,4 @@ poetry install --no-root
 ```
 
 ## History
-+ v0.1.3: 서비스명 변경 ( grpc-config-server -> grpc-config-fetcher )
++ v0.1.3: 서비스명 변경 ( grpc-config-server -> grpc-config-fetcher ) 빌드 테스트 중
