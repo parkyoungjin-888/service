@@ -721,4 +721,4 @@ subdirectory = "utils_module"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "ba3930e9eba1232bb4bbc2afc54149995b59d554b7b54cc5741505bba541a9ac"
+content-hash = "ea7d9e0e1be174245d81cfb12a506849dd2d673eff00079b2ec9957eb2994c30"

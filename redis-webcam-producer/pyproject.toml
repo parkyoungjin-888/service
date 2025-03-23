@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 opencv-python = "^4.10.0.84"
+utils_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "utils_module" }
 config_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "config_module" }
 data_model_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "data_model_module" }
 redis_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "redis_module" }
