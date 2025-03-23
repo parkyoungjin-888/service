@@ -14,8 +14,8 @@ WORKDIR /service/app
 
 COPY ./common /common
 COPY . /service/app
-RUN rm -rf ./common
 RUN poetry install --no-interaction --no-cache --no-root
+RUN rm -rf ./common
 
 # Stage 2: Runtime stage
 FROM python:3.12-slim
