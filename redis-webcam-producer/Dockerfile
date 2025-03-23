@@ -12,9 +12,9 @@ ENV POETRY_NO_INTERACTION=1 \
 
 WORKDIR /service/app
 
-COPY ./common /common
+#COPY ./common /common
 COPY . /service/app
-RUN rm -rf ./common
+#RUN rm -rf ./common
 RUN poetry install --no-interaction --no-cache --no-root
 
 # Stage 2: Runtime stage
