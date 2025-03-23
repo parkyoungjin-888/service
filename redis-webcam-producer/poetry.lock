@@ -87,7 +87,7 @@ utils_module = {git = "https://github.com/parkyoungjin-888/common.git", subdirec
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "1b5fe8792ed464eb6907d388c5ce8bec035bcc20"
+resolved_reference = "5dc25191114f09dbc02207ab7eb788d7e53995c2"
 subdirectory = "config_module"
 
 [[package]]
@@ -108,7 +108,7 @@ pydantic = "^2.10.4"
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "1b5fe8792ed464eb6907d388c5ce8bec035bcc20"
+resolved_reference = "5dc25191114f09dbc02207ab7eb788d7e53995c2"
 subdirectory = "data_model_module"
 
 [[package]]
@@ -657,7 +657,7 @@ redis = "^5.1.0"
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "1b5fe8792ed464eb6907d388c5ce8bec035bcc20"
+resolved_reference = "5dc25191114f09dbc02207ab7eb788d7e53995c2"
 subdirectory = "redis_module"
 
 [[package]]
@@ -715,7 +715,7 @@ develop = false
 type = "git"
 url = "https://github.com/parkyoungjin-888/common.git"
 reference = "HEAD"
-resolved_reference = "1b5fe8792ed464eb6907d388c5ce8bec035bcc20"
+resolved_reference = "5dc25191114f09dbc02207ab7eb788d7e53995c2"
 subdirectory = "utils_module"
 
 [metadata]
