@@ -11,9 +11,9 @@ from kafka_module.kafka_producer import KafkaProducerControl
 
 # region ############################## config section ##############################
 
-local_config_host = '192.168.0.104'
+local_config_host = '192.168.0.100'
 local_config_port = 31001
-local_app_id = 'queue-kafka-producer-001'
+local_app_id = 'queue-kafka-producer-002'
 
 config = ConfigSingleton()
 config_host = os.environ.get('CONFIG_HOST') if os.environ.get('CONFIG_HOST') else local_config_host
