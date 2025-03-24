@@ -81,14 +81,13 @@ grpcio = "^1.64.1"
 grpcio-tools = "^1.64.1"
 protobuf = "^5.27.1"
 pymongo = "^4.7.3"
-utils_module = {git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "utils_module"}
+utils_module = {git = "https://github.com/parkyoungjin-888/utils_module.git"}
 
 [package.source]
 type = "git"
-url = "https://github.com/parkyoungjin-888/common.git"
+url = "https://github.com/parkyoungjin-888/config_module.git"
 reference = "HEAD"
-resolved_reference = "f63f5080b67452c5451bf6422fc19f8adec9eab0"
-subdirectory = "config_module"
+resolved_reference = "021fd8718805e2daa52d07a2505a5e614e356669"
 
 [[package]]
 name = "data-model-module"
@@ -713,12 +712,11 @@ develop = false
 
 [package.source]
 type = "git"
-url = "https://github.com/parkyoungjin-888/common.git"
+url = "https://github.com/parkyoungjin-888/utils_module.git"
 reference = "HEAD"
-resolved_reference = "f63f5080b67452c5451bf6422fc19f8adec9eab0"
-subdirectory = "utils_module"
+resolved_reference = "93c713c7941fdf7a551f9eff4cf84e61cec3018b"
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "c117c628470d9164e2d3f20320b96648d95800e032b40a9c8afd11a82f2acff5"
+content-hash = "0f1b6e9527f5d1dd1f88de7aa5aa25f6167d5fbde20550684b79fd59026ef272"

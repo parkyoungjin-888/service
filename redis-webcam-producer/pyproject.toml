@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 opencv-python = "^4.10.0.84"
-config_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "config_module" }
+config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
 redis_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "redis_module" }
 prometheus-client = "^0.21.0"
 
