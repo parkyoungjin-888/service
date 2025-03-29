@@ -17,7 +17,7 @@ COPY . /service/app
 RUN poetry install --no-interaction --no-cache --no-root
 
 # Stage 2: Runtime stage
-FROM --platform=linux/amd64 python:3.12-slim-arm64
+FROM --platform=linux/amd64 python:3.12-slim
 
 ENV PATH="/service/app/.venv/bin:$PATH"
 
