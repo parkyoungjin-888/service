@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "redis-webcam-producer"
-version = "0.1.0"
+version = "0.1.0+arm64"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
 readme = "README.md"
@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.12"
 opencv-python = "^4.10.0.84"
 config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
-redis_module = { git = "https://github.com/parkyoungjin-888/common.git", subdirectory = "redis_module" }
+redis_module = { git = "https://github.com/parkyoungjin-888/redis_module.git" }
 prometheus-client = "^0.21.0"
 
 
