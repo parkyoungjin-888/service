@@ -22,4 +22,4 @@ poetry install --no-root
 
 ## History
 + v0.1.0: init, 서비스명 변경 ( agent-webcam-stream -> redis-webcam-producer )
-+ 
++ v0.1.1: 도커 베이스 이미지를 arm 용 이미지로 변경
