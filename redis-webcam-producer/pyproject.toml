@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "redis-webcam-producer"
-version = "0.1.1-beta"
+version = "0.1.1-alpha"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
 readme = "README.md"
