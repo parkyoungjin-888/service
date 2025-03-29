@@ -93,7 +93,7 @@ jobs:
             for IMAGE_NAME in $IMAGE_LIST; do
               IMAGE_NAME_NO_TAG=$(echo "$IMAGE_NAME" | cut -d ':' -f1)
   
-              for EDIT_FILE in ./manifests/*/values.yaml; do
+              for EDIT_FILE in ./manifests/*/values*.yaml; do
                 sed -i "s|image: *$IMAGE_NAME_NO_TAG:.*|image: $IMAGE_NAME|" "$EDIT_FILE"
                 git add "$EDIT_FILE"
               done
