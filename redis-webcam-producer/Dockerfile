@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM --platform=linux/arm64 python:3.12-slim as build
+FROM python:3.12-slim as build
 
 RUN apt-get update && apt-get install -y vim
 
@@ -17,7 +17,7 @@ COPY . /service/app
 RUN poetry install --no-interaction --no-cache --no-root
 
 # Stage 2: Runtime stage
-FROM --platform=linux/arm64 python:3.12-slim as runtime
+FROM python:3.12-slim as runtime
 
 ENV PATH="/service/app/.venv/bin:$PATH"
 
