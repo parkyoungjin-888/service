@@ -21,7 +21,12 @@ FROM --platform=linux/arm64 python:3.12-slim as runtime
 
 ENV PATH="/service/app/.venv/bin:$PATH"
 
-RUN apt-get update && apt-get install -y vim libgl1-mesa-glx libglib2.0-0 pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    vim \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    pkg-config \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /service/app
 
