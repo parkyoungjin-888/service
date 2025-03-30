@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "kafka-image-consumer"
+version = "0.1.0"
+description = ""
+authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
+redis_module = { git = "https://github.com/parkyoungjin-888/redis_module.git" }
+kafka_module = { git = "https://github.com/parkyoungjin-888/kafka_module.git" }
+prometheus-client = "^0.21.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
