@@ -30,6 +30,7 @@ class CamStream:
         webcam_config = config.get_value('webcam')
         redis_config = config.get_value('redis')
 
+        self.device_id = webcam_config['device_id']
         self.device = webcam_config['device']
         self.img_w = webcam_config['img_w']
         self.img_h = webcam_config['img_h']
@@ -74,11 +75,14 @@ class CamStream:
                     else:
                         self.in_streaming = True
 
-                    _timestamp = datetime.now().timestamp()
+                    now = datetime.now()
+                    now_str = now.strftime('%y%m%d_%H%M%S_%f')
+                    _timestamp = now.timestamp()
                     frame_count += 1
 
                     img_data = {
-                        'name': f'webcam.jpg',
+                        'device_id': self.device_id,
+                        'name': f'{self.device_id}_{now_str}.jpg',
                         'timestamp': _timestamp,
                         'width': img.shape[1],
                         'height': img.shape[0],
