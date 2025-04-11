@@ -22,3 +22,4 @@ poetry install --no-root
 
 ## History
 + v0.1.0: init
++ v0.1.1: redis_module, kafka_module 레포지토리 변경
