@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "spark-image-consumer"
+version = "0.1.0"
+description = ""
+authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
+data_model_module = { git = "https://github.com/parkyoungjin-888/data_model_module.git" }
+mongodb_module = { git = "https://github.com/parkyoungjin-888/mongodb_module.git" }
+prometheus-client = "^0.21.1"
+boto3 = "^1.37.29"
+pyspark = "^3.5.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
