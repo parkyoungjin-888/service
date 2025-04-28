@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM python:3.12-slim as build
+FROM bitnami/spark:3.5.5 as build
 
 RUN apt-get update && apt-get install -y vim
 
@@ -21,8 +21,8 @@ FROM bitnami/spark:3.5.5
 
 USER root
 
-ENV PATH="/opt/bitnami/spark/submit/.venv/bin:$PATH"
-COPY --from=build /service/app/.venv /opt/bitnami/spark/submit/.venv
+ENV PATH="/opt/bitnami/spark/.venv/bin:$PATH"
+COPY --from=build /service/app/.venv /opt/bitnami/spark/.venv
 
 COPY app.py /opt/bitnami/spark/submit/app.py
 
