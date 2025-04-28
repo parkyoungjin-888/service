@@ -40,7 +40,7 @@ CONSUMING_LATENCY = Histogram('producing_latency', 'image send latency')
 CONSUMING_COUNT = Counter('producing_count', 'total number of send img')
 
 kafka_config = config.get_value('kafka')
-KAFKA_SERVERS = ','.join(kafka_config.get('server_urls', []))
+KAFKA_SERVERS = ','.join(kafka_config.get('server_urls', [])).replace('\n', '').strip()
 KAFKA_TOPIC = kafka_config['topic']
 
 mongo_config = config.get_value('mongo')
