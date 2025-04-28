@@ -1,6 +1,8 @@
 # Stage 1: Build stage
 FROM bitnami/spark:3.5.5 as build
 
+USER root
+
 RUN apt-get update && apt-get install -y vim
 
 RUN pip install poetry==1.8.2
