@@ -25,3 +25,4 @@ poetry install --no-root
 + v0.1.1: data_model_module 버전업 0.1.3
 + v0.1.2: doc_id 로 update, delete 불가능 했던 오류 수정
 + v0.1.3: 로그 데코레이터 적용
++ v0.1.4: 모듈 경로 변경, 데이터 모델 모듈 업데이트
