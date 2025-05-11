@@ -11,7 +11,7 @@ from utils_module.logger import LoggerSingleton
 
 local_config_host = '192.168.0.104'
 local_config_port = 21001
-local_app_id = 'local-grpc-img-process-manager'
+local_app_id = 'local-grpc-collection-manager'
 
 config_host = os.environ.get('CONFIG_HOST', local_config_host)
 config_port = int(os.environ.get('CONFIG_PORT', local_config_port))
