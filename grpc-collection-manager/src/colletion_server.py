@@ -9,11 +9,11 @@ from pymongo import UpdateMany
 from datetime import datetime
 
 from mongodb_module.proto import collection_pb2 as pb2
-from mongodb_module.proto import collection_pb2_grpc
-from data_model_module.beanie_data_model.model_importer import import_model
+from mongodb_module.proto.collection_pb2_grpc import CollectionServerServicer
 from config_module.config_singleton import ConfigSingleton
 from utils_module.logger import LoggerSingleton
 from utils_module.log_decorator import log_decorator
+from data_model_module.model_cashe_manager import ModelCacheManager
 
 
 config = ConfigSingleton()
@@ -102,14 +102,14 @@ def convert_field_type(value):
         return value
 
 
-class CollectionServer(collection_pb2_grpc.CollectionServerServicer):
-    def __init__(self, data_model):
+class CollectionServer(CollectionServerServicer):
+    def __init__(self, data_model, model_manager: ModelCacheManager):
         self.collection_model = data_model
+        self.model_manager = model_manager
 
-    @staticmethod
-    def _get_query_request_data(request):
+    def _get_query_request_data(self, request):
         if request.HasField('project_model'):
-            project_model = import_model(request.project_model)
+            project_model = self.model_manager.get_model(request.project_model)
         else:
             project_model = None
 
