@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "fastapi-images-manager"
+version = "0.1.0"
+description = ""
+authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.6"
+uvicorn = "^0.34.0"
+config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
+data_model_module = { git = "https://github.com/parkyoungjin-888/data_model_module.git" }
+mongodb_module = { git = "https://github.com/parkyoungjin-888/mongodb_module.git" }
+fastapi_module = { git = "https://github.com/parkyoungjin-888/fastapi_module.git" }
+jinja2 = "^3.1.4"
+websockets = "^15.0"
+httpx = "^0.28.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

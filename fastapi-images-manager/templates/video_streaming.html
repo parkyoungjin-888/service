@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Stream with Control Bar</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #333;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        img {
+            max-width: 90%;
+            max-height: 70%;
+            border: 5px solid white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .controls button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #76c7c0;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .controls input[type="range"] {
+            width: 300px;
+            margin: 0 20px;
+        }
+    </style>
+</head>
+<body>
+    <img id="stream" src="" alt="Streaming...">
+    <div class="controls">
+        <button id="playPause">Play</button>
+        <input type="range" id="slider" min="0" value="0" step="1">
+    </div>
+    <div id="status">Waiting for images...</div>
+
+    <script>
+        const img = document.getElementById("stream");
+        const playPauseButton = document.getElementById("playPause");
+        const slider = document.getElementById("slider");
+        const status = document.getElementById("status");
+
+        const ws = new WebSocket("ws://localhost:8080/images/streaming/video/websocket");
+        const images = []; // Array to store image data
+        let currentFrame = 0;
+        let playing = false;
+        let playbackInterval;
+
+        // WebSocket message handling
+        ws.onmessage = (event) => {
+            const blob = new Blob([event.data], { type: "image/jpeg" });
+            const url = URL.createObjectURL(blob);
+            images.push(url); // Store image in array
+
+            // Update slider max value
+            slider.max = images.length - 1;
+
+            if (images.length === 1) {
+                // Display the first image
+                img.src = images[0];
+                status.textContent = "Images are ready!";
+            }
+        };
+
+        ws.onclose = () => {
+            status.textContent = "All images received.";
+        };
+
+        // Play/Pause toggle
+        playPauseButton.addEventListener("click", () => {
+            if (playing) {
+                pausePlayback();
+            } else {
+                startPlayback();
+            }
+        });
+
+        // Slider change event
+        slider.addEventListener("input", (event) => {
+            currentFrame = parseInt(event.target.value);
+            updateFrame();
+        });
+
+        function startPlayback() {
+            if (images.length === 0) return;
+
+            playing = true;
+            playPauseButton.textContent = "Pause";
+
+            playbackInterval = setInterval(() => {
+                if (currentFrame < images.length - 1) {
+                    currentFrame++;
+                    updateFrame();
+                    slider.value = currentFrame;
+                } else {
+                    pausePlayback(); // Stop at the end
+                }
+            }, 33); // Adjust interval for playback speed (100ms = ~10fps)
+        }
+
+        function pausePlayback() {
+            playing = false;
+            playPauseButton.textContent = "Play";
+            clearInterval(playbackInterval);
+        }
+
+        function updateFrame() {
+            img.src = images[currentFrame];
+        }
+    </script>
+</body>
+</html>
