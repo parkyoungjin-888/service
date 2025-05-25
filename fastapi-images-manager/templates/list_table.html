@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Metadata Table</title>
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+
+<form id="searchForm">
+    {% for field in tag_fields %}
+    <select id="{{ field }}Select" name="{{ field }}"></select>
+    {% endfor %}
+    <input type="datetime-local" id="fromTime" step="1" name="from_time">
+    <input type="datetime-local" id="toTime" step="1" name="to_time">
+    <button type="submit">조회</button>
+</form>
+
+<table id="imageTable">
+    <thead>
+    <tr>
+        {% for key, label in table_fields.items() %}
+        <th data-key="{{ key }}">{{ label }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody id="imageTableBody"></tbody>
+</table>
+
+<div id="pagination" style="margin-top: 10px; text-align: center;">
+    <button id="prevPage">◀</button>
+    <input type="number" id="pageNum" min="1" value="1" style="width: 50px;">
+    <span id="totalPage"></span>
+    <button id="nextPage">▶</button>
+</div>
+
+<script>
+    const getListUrl = {{ get_list_url | tojson }};
+    const getTagUrl = {{ get_tag_url | tojson }};
+    const fieldOrder = {{ field_order | tojson }};
+    const tagFields = {{ tag_fields | tojson }};
+    const BlankTagTexts = {{ blank_tag_texts | tojson }};
+
+    let currentPage = 1;
+    let totalPage = 1;
+
+    function convertTimeFormat(str) {
+        if (!str) return '';
+        const date = new Date(str);
+        return date.getFullYear() + "-" +
+            String(date.getMonth() + 1).padStart(2, "0") + "-" +
+            String(date.getDate()).padStart(2, "0") + " " +
+            String(date.getHours()).padStart(2, "0") + ":" +
+            String(date.getMinutes()).padStart(2, "0") + ":" +
+            String(date.getSeconds()).padStart(2, "0");
+    }
+
+    function updateTagSelects(tagData) {
+        tagFields.forEach(field => {
+            const select = document.getElementById(`${field}Select`);
+            const currentValue = select.value;
+            select.innerHTML = '';
+
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = BlankTagTexts[`${field}`];
+            select.appendChild(defaultOption);
+
+            (tagData[field] ?? []).forEach(val => {
+                const option = document.createElement('option');
+                option.value = val;
+                option.textContent = val;
+                select.appendChild(option);
+            });
+
+            if ((tagData[field] ?? []).includes(currentValue)) {
+                select.value = currentValue;
+            }
+        });
+    }
+
+    async function fetchAndRender() {
+        const fromTime = document.getElementById('fromTime').value;
+        const toTime = document.getElementById('toTime').value;
+        const fromTimeRe = convertTimeFormat(fromTime);
+        const toTimeRe = convertTimeFormat(toTime);
+
+        let url = getListUrl + `&page_num=${currentPage}`;
+        let tag_url = getTagUrl;
+
+        // 조회 조건 정리
+        const queryParams = [];
+        if (fromTimeRe) queryParams.push(`query=event_datetime>=${fromTimeRe}`);
+        if (toTimeRe) queryParams.push(`query=event_datetime<=${toTimeRe}`);
+        tagFields.forEach(field => {
+            const val = document.getElementById(`${field}Select`).value;
+            if (val) queryParams.push(`query=${field}=${val}`);
+        });
+
+        if (queryParams.length > 0) {
+            const q = '&' + queryParams.join('&');
+            url += q;
+            tag_url += q;
+        }
+
+        // 태그 조회 및 콤보박스 갱신
+        const tag_response = await fetch(tag_url);
+        const tag_res = await tag_response.json();
+        updateTagSelects(tag_res);
+
+        // 리스트 조회 및 테이블 갱신
+        const response = await fetch(url);
+        const res = await response.json();
+        const tbody = document.getElementById('imageTableBody');
+        tbody.innerHTML = '';
+        (res.doc_list ?? []).forEach(doc => {
+            const row = document.createElement('tr');
+
+            // img_path를 data 속성으로 저장 (표시하지 않음)
+            row.dataset.imgPath = doc.img_path;
+
+            row.innerHTML = fieldOrder.map(key => `<td>${doc[key] ?? ''}</td>`).join('');
+
+            // 클릭 시 iframe으로 이미지 전달
+            row.addEventListener('click', () => {
+                const path = row.dataset.imgPath;
+                // 부모 창으로 메시지 전송
+                window.parent.postMessage({ imgPath: path }, '*');
+            });
+
+            tbody.appendChild(row);
+        });
+
+        // 페이지 갱신
+        const totalCount = res.total_count ?? 0;
+        totalPage = Math.max(1, Math.ceil(totalCount / 10));
+        document.getElementById('pageNum').value = currentPage;
+        document.getElementById('totalPage').textContent = `/ ${totalPage}`;
+    }
+
+    // 검색 조건 변경
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        currentPage = 1;
+        fetchAndRender();
+    });
+
+    document.getElementById('pageNum').addEventListener('change', function() {
+        let val = parseInt(this.value, 10);
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > totalPage) val = totalPage;
+        currentPage = val;
+        fetchAndRender();
+    });
+
+    document.getElementById('prevPage').addEventListener('click', function() {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchAndRender();
+        }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', function() {
+        if (currentPage < totalPage) {
+            currentPage++;
+            fetchAndRender();
+        }
+    });
+
+    // 최초 1회 실행
+    fetchAndRender();
+</script>
+</body>
+</html>

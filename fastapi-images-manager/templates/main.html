@@ -28,7 +28,15 @@
     </style>
 </head>
 <body>
-    <iframe id="table-block" src="/images/streaming/table"></iframe>
-<!--    <iframe id="video-block" src="/images/streaming/video"></iframe>-->
+    <iframe id="table-block" src="/images/table"></iframe>
+    <iframe id="image-block" src="/images/display"></iframe>
+<script>
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.imgPath) {
+            const newUrl = `/images/display?img_path=${encodeURIComponent(event.data.imgPath)}`;
+            document.getElementById('image-block').src = newUrl;
+        }
+    });
+</script>
 </body>
 </html>

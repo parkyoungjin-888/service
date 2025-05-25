@@ -59,31 +59,10 @@
         const slider = document.getElementById("slider");
         const status = document.getElementById("status");
 
-        const ws = new WebSocket("ws://localhost:8080/images/streaming/video/websocket");
-        const images = []; // Array to store image data
+        let images = [];
         let currentFrame = 0;
         let playing = false;
         let playbackInterval;
-
-        // WebSocket message handling
-        ws.onmessage = (event) => {
-            const blob = new Blob([event.data], { type: "image/jpeg" });
-            const url = URL.createObjectURL(blob);
-            images.push(url); // Store image in array
-
-            // Update slider max value
-            slider.max = images.length - 1;
-
-            if (images.length === 1) {
-                // Display the first image
-                img.src = images[0];
-                status.textContent = "Images are ready!";
-            }
-        };
-
-        ws.onclose = () => {
-            status.textContent = "All images received.";
-        };
 
         // Play/Pause toggle
         playPauseButton.addEventListener("click", () => {
@@ -125,6 +104,45 @@
 
         function updateFrame() {
             img.src = images[currentFrame];
+        }
+
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'TABLE_CONDITION_URL') {
+            const url = new URL(event.data.url);
+            const fromTime = url.searchParams.get('fromTime');
+            const toTime = url.searchParams.get('toTime');
+            fetchAndRenderWithCondition({ fromTime, toTime });
+        }
+        });
+
+        async function fetchAndRenderWithCondition(condition) {
+            // condition: { fromTime, toTime }
+            // 필요에 따라 timestamp 변환
+            function convertTimestamp(str) {
+                if (!str) return '';
+                return Math.floor(new Date(str).getTime() / 1000) + 9 * 60 * 60;
+            }
+            const fromTimestamp = convertTimestamp(condition.fromTime);
+            const toTimestamp = convertTimestamp(condition.toTime);
+
+            let url = `/images/list?project_model_name=ProjectImage&sort=-timestamp`;
+            if (fromTimestamp !== '') url += `&query=timestamp>${fromTimestamp}`;
+            if (toTimestamp !== '') url += `&query=timestamp<${toTimestamp}`;
+
+            // 이미지 리스트 받아오기
+            const response = await fetch(url);
+            const res = await response.json();
+            images = (res.doc_list ?? []).map(doc => doc.image_url); // image_url 필드명은 실제 API에 맞게 수정
+
+            // 이미지를 동영상처럼 보여주는 함수 호출
+            setImages(images);
+        }
+
+        function setImages(newImages) {
+            images = newImages;
+            currentFrame = 0;
+            // 슬라이더, 이미지 등 UI 초기화
+            // ...
         }
     </script>
 </body>
