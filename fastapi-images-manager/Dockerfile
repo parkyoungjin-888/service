@@ -27,4 +27,4 @@ WORKDIR /service/app
 
 COPY --from=build /service/app /service/app
 
-CMD ["python3", "main.py"]
+CMD ["python3", "app.py"]
