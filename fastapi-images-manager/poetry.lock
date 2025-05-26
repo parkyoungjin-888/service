@@ -172,7 +172,7 @@ resolved_reference = "b2ac7933f83fcaaa3a18b214bde92cc735c59a9a"
 
 [[package]]
 name = "data-model-module"
-version = "0.1.9"
+version = "0.1.10"
 description = ""
 optional = false
 python-versions = "^3.12"
@@ -187,7 +187,7 @@ pydantic = "^2.10.4"
 type = "git"
 url = "https://github.com/parkyoungjin-888/data_model_module.git"
 reference = "HEAD"
-resolved_reference = "986501c2919cd633cbf262c929eb00599c1b9902"
+resolved_reference = "b980268af2de9c65fa780e7c5db3a75fdfb14428"
 
 [[package]]
 name = "dnspython"

@@ -8,11 +8,21 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 10px; }
         th { background-color: #f4f4f4; }
+
+        tr.selected {
+        background-color: #f0f0f0;
+        }
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        tr {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-<form id="searchForm">
+<form id="searchForm" style="text-align: right;">
     {% for field in tag_fields %}
     <select id="{{ field }}Select" name="{{ field }}"></select>
     {% endfor %}
@@ -84,6 +94,11 @@
         });
     }
 
+    function sendDocToParent(doc) {
+        window.parent.postMessage({ doc: doc }, '*');
+        sessionStorage.setItem("selectedDocId", doc._id);
+    }
+
     async function fetchAndRender() {
         const fromTime = document.getElementById('fromTime').value;
         const toTime = document.getElementById('toTime').value;
@@ -120,18 +135,19 @@
         tbody.innerHTML = '';
         (res.doc_list ?? []).forEach(doc => {
             const row = document.createElement('tr');
-
-            // img_path를 data 속성으로 저장 (표시하지 않음)
-            row.dataset.imgPath = doc.img_path;
-
             row.innerHTML = fieldOrder.map(key => `<td>${doc[key] ?? ''}</td>`).join('');
 
-            // 클릭 시 iframe으로 이미지 전달
             row.addEventListener('click', () => {
-                const path = row.dataset.imgPath;
-                // 부모 창으로 메시지 전송
-                window.parent.postMessage({ imgPath: path }, '*');
+                sendDocToParent(doc);
+                document.querySelectorAll('#imageTableBody tr').forEach(tr => tr.classList.remove('selected'));
+                row.classList.add('selected');
             });
+
+            // 이전에 선택된 값과 일치하면 강조
+            const selectedDocId = sessionStorage.getItem("selectedDocId");
+            if (doc._id && doc._id === selectedDocId) {
+                row.classList.add('selected');
+            }
 
             tbody.appendChild(row);
         });
