@@ -21,4 +21,4 @@ poetry install --no-root
 ```
 
 ## History
-+ v0.1.0: init
++ v0.1.0: init, 재빌드
