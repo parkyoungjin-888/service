@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "mongo-collection-watcher"
+version = "0.1.0"
+description = ""
+authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+utils_module = { git = "https://github.com/parkyoungjin-888/utils_module.git" }
+config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
+mongodb_module = { git = "https://github.com/parkyoungjin-888/mongodb_module.git" }
+kafka_module = { git = "https://github.com/parkyoungjin-888/kafka_module.git" }
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
