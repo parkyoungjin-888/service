@@ -1,6 +1,4 @@
 import os
-import uvicorn
-from fastapi import FastAPI
 
 from config_module.config_singleton import ConfigSingleton
 from utils_module.logger import LoggerSingleton
@@ -10,7 +8,7 @@ from utils_module.logger import LoggerSingleton
 
 local_config_host = '192.168.0.104'
 local_config_port = 21001
-local_app_id = 'local-fastapi-image-streaming'
+local_app_id = 'local-kafka-changestream-consumer'
 
 config_host = os.environ.get('CONFIG_HOST', local_config_host)
 config_port = int(os.environ.get('CONFIG_PORT', local_config_port))
@@ -30,9 +28,9 @@ logger = LoggerSingleton.get_logger(f'{app_config["name"]}.main', level=log_leve
 
 import boto3
 from botocore.client import Config
+from kafka_module.kafka_consumer import KafkaConsumerControl
+from utils_module.cache_manager import CacheManager
 
-from data_model_module.model_cashe_manager import ModelCacheManager
-from fastapi_module import create_collection_router
 
 minio_config = config.get_value('minio')
 s3_client = boto3.client('s3',
@@ -41,18 +39,17 @@ s3_client = boto3.client('s3',
                          aws_secret_access_key=minio_config.get('secret_key'),
                          config=Config(signature_version='s3v4'))
 
-data_model_config = config.get_value('data_model')
-data_model_name = data_model_config['model_name']
-model_manager = ModelCacheManager(s3_client, minio_config['bucket'], data_model_config['file_name'])
-data_model = model_manager.get_model(data_model_name)
-collection_router = create_collection_router(model_manager, data_model)
+kafka_config = config.get_value('kafka')
+kafka_consumer = KafkaConsumerControl(**kafka_config)
 
-app = FastAPI()
-app.include_router(collection_router, prefix=app_config['api_prefix'])
+cache_manager = CacheManager(s3_client, minio_config['bucket'])
+
+handler_config = config.get_value('handler')
+EventHandlerClass = cache_manager.get_obj(**handler_config)
+event_handle = EventHandlerClass(config, logger, cache_manager, s3_client)
 
 # endregion
 
 
 if __name__ == '__main__':
-    logger.info({'message': 'server start', 'port': app_config['port']})
-    uvicorn.run('main:app', host="0.0.0.0", port=app_config['port'])
+    kafka_consumer.start_consumer(event_handle.process)
