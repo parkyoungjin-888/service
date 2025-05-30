@@ -46,7 +46,7 @@ cache_manager = CacheManager(s3_client, minio_config['bucket'])
 
 handler_config = config.get_value('handler')
 EventHandlerClass = cache_manager.get_obj(**handler_config)
-event_handle = EventHandlerClass(config, logger, cache_manager, s3_client)
+event_handle = EventHandlerClass(cache_manager, s3_client)
 
 # endregion
 
