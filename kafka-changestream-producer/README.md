@@ -1,4 +1,4 @@
-# mongo-collection-watcher
+# kafka-changestream-producer
 
 mongodb change stream 감지 후 kafka로 프로튜싱 하는 서비스
 
@@ -16,7 +16,7 @@ Instructions for setting up the project.
 git clone https://github.com/parkyoungjin-888/service.git
 
 # Install dependencies using Poetry
-cd mongo-collection-watcher
+cd kafka-changestream-producer
 poetry install --no-root
 ```
 

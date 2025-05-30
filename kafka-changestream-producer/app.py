@@ -8,7 +8,7 @@ from utils_module.logger import LoggerSingleton
 
 local_config_host = '192.168.0.104'
 local_config_port = 21001
-local_app_id = 'local-mongo-collection-watcher'
+local_app_id = 'local-kafka-changestream-producer'
 
 config_host = os.environ.get('CONFIG_HOST', local_config_host)
 config_port = int(os.environ.get('CONFIG_PORT', local_config_port))
@@ -83,7 +83,7 @@ def watch():
     db = client[db_name]
 
     pipeline = [
-        {"$match": {
+        {'$match': {
             'ns.coll': {'$in': watch_collections},
             'operationType': {'$in': ['insert', 'update', 'delete', 'replace']}
         }}
@@ -97,7 +97,6 @@ def watch():
                 logger.info({'message': 'publish success', 'payload': payload})
             except Exception as e:
                 logger.critical({'message': 'publish failed', 'error': e, 'change': str(change)})
-
 
 # endregion
 

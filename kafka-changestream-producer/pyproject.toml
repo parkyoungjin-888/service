@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mongo-collection-watcher"
+name = "kafka-changestream-producer"
 version = "0.1.0"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
