@@ -31,7 +31,7 @@ logger = LoggerSingleton.get_logger(f'{app_config["name"]}.main', level=log_leve
 import boto3
 from botocore.client import Config
 
-from data_model_module.model_cashe_manager import ModelCacheManager
+from utils_module.cache_manager import CacheManager
 from fastapi_module import create_collection_router
 from routers.html_router import create_router as create_html_router
 
@@ -42,12 +42,11 @@ s3_client = boto3.client('s3',
                          aws_secret_access_key=minio_config.get('secret_key'),
                          config=Config(signature_version='s3v4'))
 data_model_config = config.get_value('data_model')
-data_model_name = data_model_config['model_name']
 data_model_bucket = minio_config['data_model_bucket']
-model_manager = ModelCacheManager(s3_client, data_model_bucket, data_model_config['file_name'])
-data_model = model_manager.get_model(data_model_name)
+cache_manager = CacheManager(s3_client, data_model_bucket)
+data_model = cache_manager.get_obj(**data_model_config)
 
-collection_router = create_collection_router(model_manager, data_model)
+collection_router = create_collection_router(cache_manager, data_model_config['file_name'], data_model)
 html_router = create_html_router(s3_client)
 
 app = FastAPI()
