@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastapi-images-manager"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
 readme = "README.md"
@@ -15,6 +15,7 @@ mongodb_module = { git = "https://github.com/parkyoungjin-888/mongodb_module.git
 fastapi_module = { git = "https://github.com/parkyoungjin-888/fastapi_module.git" }
 jinja2 = "^3.1.4"
 websockets = "^15.0"
+httpx = "^0.28.1"
 
 
 [build-system]

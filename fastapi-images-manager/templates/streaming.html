@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>실시간 이미지 스트리밍</title>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .image-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 80vh;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .timestamp {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .device-selector {
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="device-selector">
+            <select id="deviceSelect" onchange="changeDevice()">
+                <option value="">모든 디바이스</option>
+                {% for device in devices %}
+                <option value="{{ device }}">{{ device }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="image-container">
+            <img id="streamingImage" src="" alt="스트리밍 이미지">
+            <div class="timestamp" id="timestamp"></div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource = null;
+
+        function connectToStream(deviceId = '') {
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            const url = deviceId ? 
+                `/images/stream-image?device_id=${encodeURIComponent(deviceId)}` :
+                '/images/stream-image';
+
+            eventSource = new EventSource(url);
+
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                document.getElementById('streamingImage').src = data.image;
+                document.getElementById('timestamp').textContent = 
+                    `마지막 업데이트: ${new Date(data.timestamp).toLocaleString()}`;
+            };
+
+            eventSource.onerror = function(error) {
+                console.error('EventSource failed:', error);
+                eventSource.close();
+                setTimeout(() => connectToStream(deviceId), 5000);
+            };
+        }
+
+        function changeDevice() {
+            const deviceId = document.getElementById('deviceSelect').value;
+            connectToStream(deviceId);
+        }
+
+        // 초기 연결
+        connectToStream();
+    </script>
+</body>
+</html> 
