@@ -106,7 +106,7 @@ def create_router(s3_client):
                        '&page_size=1&page_num=1')
 
                 if device_id:
-                    url += f'&device_id={device_id}'
+                    url += f'&query=device_id={device_id}'
 
                 async with httpx.AsyncClient() as client:
                     response = await client.get(url)
