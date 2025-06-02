@@ -27,7 +27,7 @@ def save_to_mongo(client, document):
     try:
         db = client[MONGO_DB]
         collection = db[MONGO_COLLECTION]
-        collection.insert_one(document)
+        collection.update_one({'name': document['name']}, document, upsert=True)
     except Exception as e:
         print(f"error in save_to_mongo: {e}")
 
