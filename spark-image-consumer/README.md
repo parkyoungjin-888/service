@@ -24,3 +24,4 @@ poetry install --no-root
 + v0.1.0: init
 + v0.1.1: mongo 저장 시 insort 를 upsert 로 변경
 + v0.1.2: 미사용 파일 삭제
++ v0.1.3: upsert 문법 오류 수정
