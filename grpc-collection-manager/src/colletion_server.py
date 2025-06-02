@@ -1,8 +1,9 @@
 import os
 import grpc
+from typing import Type
 from bson import ObjectId
 from google.protobuf.json_format import MessageToDict
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from functools import wraps
 from google.protobuf import struct_pb2
 from pymongo import UpdateMany
@@ -13,7 +14,7 @@ from mongodb_module.proto.collection_pb2_grpc import CollectionServerServicer
 from config_module.config_singleton import ConfigSingleton
 from utils_module.logger import LoggerSingleton
 from utils_module.log_decorator import log_decorator
-from data_model_module.model_cashe_manager import ModelCacheManager
+from utils_module.cache_manager import CacheManager
 
 
 config = ConfigSingleton()
@@ -103,13 +104,18 @@ def convert_field_type(value):
 
 
 class CollectionServer(CollectionServerServicer):
-    def __init__(self, data_model, model_manager: ModelCacheManager):
+    def __init__(self, data_model, cache_manager: CacheManager, data_model_file: str):
         self.collection_model = data_model
-        self.model_manager = model_manager
+        self.cache_manager = cache_manager
+        self.data_model_file = data_model_file
+
+    def _get_project_model(self, model_name) -> Type[BaseModel]:
+        project_model = self.cache_manager.get_obj(self.data_model_file, model_name)
+        return project_model
 
     def _get_query_request_data(self, request):
         if request.HasField('project_model'):
-            project_model = self.model_manager.get_model(request.project_model)
+            project_model = self._get_project_model(request.project_model)
         else:
             project_model = None
 

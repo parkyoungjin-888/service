@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
-data_model_module = { git = "https://github.com/parkyoungjin-888/data_model_module.git" }
 mongodb_module = { git = "https://github.com/parkyoungjin-888/mongodb_module.git" }
 pymongo = "4.8"
 

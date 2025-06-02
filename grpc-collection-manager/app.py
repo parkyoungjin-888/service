@@ -1,11 +1,6 @@
 import os
-import grpc
-import asyncio
-from concurrent import futures
-
 from config_module.config_singleton import ConfigSingleton
 from utils_module.logger import LoggerSingleton
-from data_model_module.model_cashe_manager import ModelCacheManager
 
 
 # region ############################## config section ##############################
@@ -31,9 +26,13 @@ logger = LoggerSingleton.get_logger(f'{app_config["name"]}.main', level=log_leve
 
 # region ############################## service define section ##############################
 
+import grpc
+import asyncio
+from concurrent import futures
 import boto3
 from botocore.client import Config
-from mongodb_module.proto import collection_pb2_grpc
+from utils_module.cache_manager import CacheManager
+from mongodb_module.proto.collection_pb2_grpc import add_CollectionServerServicer_to_server
 from mongodb_module.beanie_control import BeanieControl
 from src.colletion_server import CollectionServer
 
@@ -46,19 +45,20 @@ s3_client = boto3.client('s3',
                          config=Config(signature_version='s3v4'))
 
 data_model_config = config.get_value('data_model')
-model_manager = ModelCacheManager(s3_client, minio_config['bucket'], data_model_config['file_name'])
+data_model_bucket = minio_config['data_model_bucket']
+cache_manager = CacheManager(s3_client, data_model_bucket)
 
 
 async def serve():
-    data_model_name = data_model_config['model_name']
-    data_model = model_manager.get_model(data_model_name)
+    data_model = cache_manager.get_obj(**data_model_config)
 
     mongo_config = config.get_value('mongo')
     beanie_control = BeanieControl(**mongo_config)
     data_model = await beanie_control.init(data_model)
 
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=10))
-    collection_pb2_grpc.add_CollectionServerServicer_to_server(CollectionServer(data_model, model_manager), server)
+    collection_server = CollectionServer(data_model, cache_manager, data_model_config['file_name'])
+    add_CollectionServerServicer_to_server(collection_server, server)
     server.add_insecure_port(f'[::]:{app_config['port']}')
 
     await server.start()
