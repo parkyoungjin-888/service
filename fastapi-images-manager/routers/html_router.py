@@ -42,7 +42,7 @@ def create_router(s3_client):
         project_model_name = 'ProjectImage'
         sort = '-event_datetime'
         page_size = 10
-        get_list_url = f'/images/list?project_model_name={project_model_name}&sort={sort}&page_size={page_size}'
+        get_list_url = f'/images/many?project_model_name={project_model_name}&sort={sort}&page_size={page_size}'
 
         tag_fields = ['device_id']
         get_tag_url = f'/images/tag?fields={'&fields='.join(tag_fields)}'
@@ -100,7 +100,7 @@ def create_router(s3_client):
             last_image = None
             
             while True:
-                url = ('http://localhost:21102/images/list?'
+                url = ('http://localhost:21102/images/many?'
                        'project_model_name=ProjectImage'
                        '&sort=-event_datetime'
                        '&page_size=1&page_num=1')
