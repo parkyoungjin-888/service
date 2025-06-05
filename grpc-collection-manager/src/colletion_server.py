@@ -8,6 +8,7 @@ from functools import wraps
 from google.protobuf import struct_pb2
 from pymongo import UpdateMany
 from datetime import datetime
+from beanie import UpdateResponse
 
 from mongodb_module.proto import collection_pb2 as pb2
 from mongodb_module.proto.collection_pb2_grpc import CollectionServerServicer
@@ -15,6 +16,7 @@ from config_module.config_singleton import ConfigSingleton
 from utils_module.logger import LoggerSingleton
 from utils_module.log_decorator import log_decorator
 from utils_module.cache_manager import CacheManager
+from mongodb_module.beanie_control import BaseDocument
 
 
 config = ConfigSingleton()
@@ -104,7 +106,7 @@ def convert_field_type(value):
 
 
 class CollectionServer(CollectionServerServicer):
-    def __init__(self, data_model, cache_manager: CacheManager, data_model_file: str):
+    def __init__(self, data_model: BaseDocument, cache_manager: CacheManager, data_model_file: str):
         self.collection_model = data_model
         self.cache_manager = cache_manager
         self.data_model_file = data_model_file
@@ -183,10 +185,8 @@ class CollectionServer(CollectionServerServicer):
             response.message = f'doc is not found, doc_id : {doc_id}'
             return response
 
-        res = res.model_dump(by_alias=True)
-        if '_id' in res:
-            res['_id'] = str(res['_id'])
-        response.doc = res
+        return_doc = res.model_dump(by_alias=True, stringify_extra_type=True)
+        response.doc = return_doc
         response.code = 200
         return response
 
@@ -194,13 +194,11 @@ class CollectionServer(CollectionServerServicer):
     @grpc_server_error_handler(pb2.DocListResponse())
     async def GetMany(self, request, context):
         query_request_data = self._get_query_request_data(request)
-        res = await self.collection_model.find_with_paginate(**query_request_data)
+        res = await self.collection_model.find_with_paginate(**query_request_data, stringify_extra_type=True)
 
         response = pb2.DocListResponse()
         for doc in res['doc_list']:
             doc_struct = struct_pb2.Struct()
-            if '_id' in doc:
-                doc['_id'] = str(doc['_id'])
             doc_struct.update(doc)
             response.doc_list.append(doc_struct)
 
@@ -209,9 +207,39 @@ class CollectionServer(CollectionServerServicer):
         return response
 
     @log_decorator(logger)
+    @grpc_server_error_handler(pb2.DocResponse())
+    async def UpdateOne(self, request, context):
+        query = MessageToDict(request.query, preserving_proto_field_name=True)
+        query = convert_field_type(query)
+        update = {}
+        if request.HasField('set'):
+            update.update({'$set': MessageToDict(request.set, preserving_proto_field_name=True)})
+        if request.HasField('unset'):
+            update.update({'$unset': MessageToDict(request.unset, preserving_proto_field_name=True)})
+        if request.HasField('push'):
+            update.update({'$push': MessageToDict(request.push, preserving_proto_field_name=True)})
+        upsert = request.upsert if request.HasField('upsert') else False
+
+        if request.HasField('array_filter'):
+            array_filters = [MessageToDict(request.array_filter, preserving_proto_field_name=True)]
+            res = await self.collection_model.find_one(query).update_one(update, upsert=upsert,
+                                                                         array_filters=array_filters,
+                                                                         response_type=UpdateResponse.NEW_DOCUMENT)
+        else:
+            res = await self.collection_model.find_one(query).update_one(update, upsert=upsert,
+                                                                         response_type=UpdateResponse.NEW_DOCUMENT)
+
+        return_doc = res.model_dump(by_alias=True, stringify_extra_type=True)
+        response = pb2.DocResponse()
+        response.doc = return_doc
+        response.code = 200
+        return response
+
+    @log_decorator(logger)
     @grpc_server_error_handler(pb2.CountResponse())
     async def UpdateMany(self, request, context):
         update_req_list = request.update_request_list
+        ordered = request.ordered if request.HasField('ordered') else True
 
         bulk_write_req = []
         for update_req in update_req_list:
@@ -230,10 +258,22 @@ class CollectionServer(CollectionServerServicer):
             if req['update'] == {}:
                 continue
             bulk_write_req.append(UpdateMany(**req))
-        res = await self.collection_model.get_motor_collection().bulk_write(bulk_write_req)
+        res = await self.collection_model.get_motor_collection().bulk_write(bulk_write_req, ordered=ordered)
 
         response = pb2.CountResponse()
         response.count = res.modified_count
+        response.code = 200
+        return response
+
+    @log_decorator(logger)
+    @grpc_server_error_handler(pb2.CountResponse())
+    async def DeleteOne(self, request, context):
+        query = MessageToDict(request.query, preserving_proto_field_name=True)
+        query = convert_field_type(query)
+        res = await self.collection_model.find_one(query).delete_one()
+
+        response = pb2.CountResponse()
+        response.count = res.deleted_count
         response.code = 200
         return response
 
