@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM onnxruntime/onnxruntime:latest-gpu as build
+FROM nvidia/cuda:12.4.1-cudnn9-runtime-ubuntu22.04 as build
 
 RUN apt-get update && apt-get install -y vim
 
@@ -17,7 +17,7 @@ COPY . /service/app
 RUN poetry install --no-interaction --no-cache --no-root
 
 # Stage 2: Runtime stage
-FROM onnxruntime/onnxruntime:latest-gpu
+FROM nvidia/cuda:12.4.1-cudnn9-runtime-ubuntu22.04
 
 ENV PATH="/service/app/.venv/bin:$PATH"
 
