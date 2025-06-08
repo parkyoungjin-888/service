@@ -23,3 +23,4 @@ poetry install --no-root
 ## History
 + 0.1.0: init
 + 0.1.1: 베이스 이미지 변경
++ 0.1.2: 베이스 이미지에 python 설치 추가

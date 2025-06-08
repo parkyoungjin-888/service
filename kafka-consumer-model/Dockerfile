@@ -19,9 +19,16 @@ RUN poetry install --no-interaction --no-cache --no-root
 # Stage 2: Runtime stage
 FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 
-ENV PATH="/service/app/.venv/bin:$PATH"
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-venv \
+    python3-pip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    vim && \
+    ln -s /usr/bin/python3 /usr/bin/python
 
-RUN apt-get update && apt-get install -y vim libgl1-mesa-glx libglib2.0-0
+ENV PATH="/service/app/.venv/bin:$PATH"
 
 WORKDIR /service/app
 
