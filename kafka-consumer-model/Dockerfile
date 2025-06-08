@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04 as build
+FROM python:3.12-slim as build
 
 RUN apt-get update && apt-get install -y vim
 
