@@ -19,6 +19,8 @@ RUN poetry install --no-interaction --no-cache --no-root
 # Stage 2: Runtime stage
 FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y software-properties-common \
  && add-apt-repository ppa:deadsnakes/ppa -y \
  && apt-get update && apt-get install -y \
@@ -28,6 +30,7 @@ RUN apt-get update && apt-get install -y software-properties-common \
     python3-pip \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    tzdata \
     vim \
  && ln -sf /usr/bin/python3.12 /usr/bin/python3 \
  && ln -sf /usr/bin/python3.12 /usr/bin/python
