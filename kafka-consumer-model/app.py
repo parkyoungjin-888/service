@@ -54,7 +54,7 @@ ModelInference = cache_manager.get_obj(**model_inference_config)
 
 kafka_consumer = KafkaConsumerControl(**config.get_value('kafka'))
 collection_client = CollectionClient(**config.get_value('grpc-collection-manager'), collection_model=data_model)
-inference = ModelInference(data_model, f'{file_cache_dir}/{weight_path}', s3_client)
+inference = ModelInference(data_model, f'{file_cache_dir}/{weight_path}', s3_client, collection_client)
 
 # endregion
 
