@@ -44,4 +44,4 @@ WORKDIR /service/app
 COPY --from=build /service/app /service/app
 
 #CMD [ "/bin/bash" ]
-CMD ["python3", "app.py"]
+CMD ["/service/app/.venv/bin/python", "app.py"]
