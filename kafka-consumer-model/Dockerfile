@@ -33,7 +33,8 @@ RUN apt-get update && apt-get install -y software-properties-common \
     tzdata \
     vim \
  && ln -sf /usr/bin/python3.12 /usr/bin/python3 \
- && ln -sf /usr/bin/python3.12 /usr/bin/python
+ && ln -sf /usr/bin/python3.12 /usr/bin/python \
+ && ln -sf /usr/bin/python3.12 /usr/local/bin/python3.12
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
 
@@ -43,5 +44,4 @@ WORKDIR /service/app
 
 COPY --from=build /service/app /service/app
 
-#CMD [ "/bin/bash" ]
 CMD ["/service/app/.venv/bin/python", "app.py"]
