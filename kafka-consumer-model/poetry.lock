@@ -146,7 +146,7 @@ cron = ["capturer (>=2.4)"]
 
 [[package]]
 name = "config-module"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 optional = false
 python-versions = "^3.12"
@@ -164,7 +164,7 @@ utils_module = {git = "https://github.com/parkyoungjin-888/utils_module.git"}
 type = "git"
 url = "https://github.com/parkyoungjin-888/config_module.git"
 reference = "HEAD"
-resolved_reference = "b2ac7933f83fcaaa3a18b214bde92cc735c59a9a"
+resolved_reference = "460662bbc28a35c4f617f49596137a2d2df628e7"
 
 [[package]]
 name = "confluent-kafka"
@@ -459,7 +459,7 @@ data-model-module = {git = "https://github.com/parkyoungjin-888/data_model_modul
 type = "git"
 url = "https://github.com/parkyoungjin-888/kafka_module.git"
 reference = "HEAD"
-resolved_reference = "000216beffd31f38e0c000df9bba2f8ec51a2812"
+resolved_reference = "a9ac3bd98d6f7a02a56c501d195b60f8a258e793"
 
 [[package]]
 name = "lazy-model"

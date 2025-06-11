@@ -1,63 +1,57 @@
-import os
-
-from config_module.config_singleton import ConfigSingleton
-from utils_module.logger import LoggerSingleton
-
-
-# region ############################## config section ##############################
+import asyncio
+from config_module import init_config_and_logger
 
 local_config_host = '192.168.0.104'
 local_config_port = 21001
 local_app_id = 'local-kafka-consumer-model'
+config, logger = init_config_and_logger(local_config_host, local_config_port, local_app_id)
 
-config_host = os.environ.get('CONFIG_HOST', local_config_host)
-config_port = int(os.environ.get('CONFIG_PORT', local_config_port))
-app_id = os.environ.get('APP_ID', local_app_id)
 
-config = ConfigSingleton()
-config.load_config(host=config_host, port=config_port, app_id=app_id)
+async def main():
+    import boto3
+    from botocore.client import Config
+    from kafka_module.kafka_consumer import KafkaConsumerControl
+    from utils_module.cache_manager import CacheManager
+    from mongodb_module.beanie_client import CollectionClient
 
-app_config = config.get_value('app')
+    # minio client 생성
+    minio_config = config.get_value('minio')
+    s3_client = boto3.client(
+        's3',
+        endpoint_url=minio_config.get('endpoint'),
+        aws_access_key_id=minio_config.get('access_key'),
+        aws_secret_access_key=minio_config.get('secret_key'),
+        config=Config(signature_version='s3v4')
+    )
 
-log_level = os.environ.get('LOG_LEVEL', 'DEBUG')
-logger = LoggerSingleton.get_logger(f'{app_config["name"]}.main', level=log_level)
+    # cache manager 생성
+    cache_bucket = minio_config['bucket']
+    file_cache_dir = './tmp/cache'
+    cache_manager = CacheManager(s3_client, cache_bucket, file_cache_dir)
 
-# endregion
+    # data model 객체 로드
+    data_model_config = config.get_value('data_model')
+    data_model = cache_manager.get_obj(**data_model_config)
 
-# region ############################## service define section ##############################
+    # model inference 객체 로드
+    model_inference_config = config.get_value('model_inference')
+    weight_path = model_inference_config.pop('weight_path')
+    cache_manager.download_file(weight_path)
+    ModelInference = cache_manager.get_obj(**model_inference_config)
 
-import boto3
-from botocore.client import Config
+    # mongo collection client 로드
+    collection_config = config.get_value('grpc-collection-manager')
+    collection_model = cache_manager.get_obj(
+        file_name=collection_config.pop('file_name'),
+        obj_name=collection_config.pop('obj_name')
+    )
+    collection_client = CollectionClient(**collection_config, collection_model=collection_model)
 
-from kafka_module.kafka_consumer import KafkaConsumerControl
-from utils_module.cache_manager import CacheManager
-from mongodb_module.beanie_client import CollectionClient
-
-minio_config = config.get_value('minio')
-s3_client = boto3.client('s3',
-                         endpoint_url=minio_config.get('endpoint'),
-                         aws_access_key_id=minio_config.get('access_key'),
-                         aws_secret_access_key=minio_config.get('secret_key'),
-                         config=Config(signature_version='s3v4'))
-
-cache_bucket = minio_config['bucket']
-file_cache_dir = './tmp/cache'
-cache_manager = CacheManager(s3_client, cache_bucket, file_cache_dir)
-
-data_model_config = config.get_value('data_model')
-data_model = cache_manager.get_obj(**data_model_config)
-
-model_inference_config = config.get_value('model_inference')
-weight_path = model_inference_config.pop('weight_path')
-cache_manager.download_file(weight_path)
-ModelInference = cache_manager.get_obj(**model_inference_config)
-
-kafka_consumer = KafkaConsumerControl(**config.get_value('kafka'))
-collection_client = CollectionClient(**config.get_value('grpc-collection-manager'), collection_model=data_model)
-inference = ModelInference(data_model, f'{file_cache_dir}/{weight_path}', s3_client, collection_client)
-
-# endregion
+    # inference 와 kafka consumer 생성 및 consumer 동작 시작
+    inference = ModelInference(data_model, f'{file_cache_dir}/{weight_path}', s3_client, collection_client)
+    kafka_consumer = KafkaConsumerControl(**config.get_value('kafka'))
+    await kafka_consumer.start_consumer_async(inference.run)
 
 
 if __name__ == "__main__":
-    kafka_consumer.start_consumer(inference.run)
+    asyncio.run(main())
