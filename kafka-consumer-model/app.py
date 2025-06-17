@@ -48,7 +48,7 @@ async def main():
     collection_client = CollectionClient(**collection_config, collection_model=collection_model)
 
     # inference 와 kafka consumer 생성 및 consumer 동작 시작
-    inference = ModelInference(data_model, f'{file_cache_dir}/{weight_path}', s3_client, collection_client)
+    inference = ModelInference(data_model, f'{file_cache_dir}/{weight_path}', collection_client)
     kafka_consumer = KafkaConsumerControl(**config.get_value('kafka'))
     await kafka_consumer.start_consumer_async(inference.run)
 

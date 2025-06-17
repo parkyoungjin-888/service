@@ -26,3 +26,4 @@ poetry install --no-root
 + 0.1.2: 베이스 이미지에 python 설치 추가
 + 0.1.3: kafka 모듈 업데이트 적용 (컨슈머 비동기 콜백 예외 처리)
 + 0.1.4: kafka 모듈 비동기 버그 수정 적용
++ 0.1.5: model inference 인자 변경
