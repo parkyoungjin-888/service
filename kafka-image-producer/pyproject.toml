@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kafka-image-producer"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
 readme = "README.md"
@@ -11,6 +11,7 @@ config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" 
 redis_module = { git = "https://github.com/parkyoungjin-888/redis_module.git" }
 kafka_module = { git = "https://github.com/parkyoungjin-888/kafka_module.git" }
 prometheus-client = "^0.21.0"
+opencv-python = "^4.11.0.86"
 
 
 [build-system]
