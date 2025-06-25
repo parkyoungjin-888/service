@@ -21,4 +21,8 @@ poetry install --no-root
 ```
 
 ## History
-+ v0.1.0: init
++ 0.1.0: init
++ 0.1.1: bytewax 을 사용한 스트리밍 구조로 수정
+
+
+python -m bytewax.run app
