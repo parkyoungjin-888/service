@@ -67,16 +67,17 @@ def parse_message(message):
         start_time = time.time()
         json_msg = json.loads(message.value)
         timestamp = float(json_msg['timestamp'])
-
+        now_datetime = datetime.now(timezone.utc)
         doc = {
             'device_id': json_msg['device_id'],
             'name': json_msg['name'],
             'timestamp': timestamp,
             'event_datetime': datetime.fromtimestamp(timestamp, tz=timezone.utc),
-            'process_datetime': datetime.now(timezone.utc),
+            'process_datetime': now_datetime,
             'width': json_msg['width'],
             'height': json_msg['height'],
-            'img_path': f"{json_msg['device_id']}/{json_msg['name']}"
+            'img_path': f"{json_msg['device_id']}/{json_msg['name']}",
+            'updated_datetime': now_datetime,
         }
         doc = data_model(**doc).model_dump()
         doc.update({'img_bytes': json_msg['img'], 'start_time': start_time})
@@ -91,7 +92,8 @@ def save_to_mongo(doc):
         img_bytes = doc.pop('img_bytes')
         start_time = doc.pop('start_time')
         mongo_collection.update_one({'name': doc['name']}, {'$set': doc}, upsert=True)
-        return {'img_bytes': img_bytes, 'img_path': doc['img_path'], 'start_time': start_time}
+        img_data = {'img_bytes': img_bytes, 'img_path': doc['img_path'], 'start_time': start_time}
+        return img_data
     except Exception as e:
         logger.error(f"[save_to_mongo] Error: {e}")
         return None
