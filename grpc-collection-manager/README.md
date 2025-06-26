@@ -28,3 +28,4 @@ poetry install --no-root
 + 0.1.4: 모듈 경로 변경, 데이터 모델 모듈 업데이트
 + 0.1.5: data_model 다운로드 방식으로 수정
 + 0.1.6: UpdateOne DeleteOne 추가
++ 0.1.7: UpdateOne 및 UpdateMany 타입 변환 기능 미적용 버그 수정

@@ -218,6 +218,7 @@ class CollectionServer(CollectionServerServicer):
             update.update({'$unset': MessageToDict(request.unset, preserving_proto_field_name=True)})
         if request.HasField('push'):
             update.update({'$push': MessageToDict(request.push, preserving_proto_field_name=True)})
+        update = convert_field_type(update)
         upsert = request.upsert if request.HasField('upsert') else False
 
         if request.HasField('array_filter'):
@@ -244,7 +245,7 @@ class CollectionServer(CollectionServerServicer):
         bulk_write_req = []
         for update_req in update_req_list:
             query = MessageToDict(update_req.query, preserving_proto_field_name=True)
-            req = {'filter': convert_field_type(query), 'update': {}}
+            req = {'filter': query, 'update': {}}
             if update_req.HasField('set'):
                 req['update'].update({'$set': MessageToDict(update_req.set, preserving_proto_field_name=True)})
             if update_req.HasField('unset'):
@@ -257,6 +258,7 @@ class CollectionServer(CollectionServerServicer):
                 req['upsert'] = update_req.upsert
             if req['update'] == {}:
                 continue
+            req = convert_field_type(req)
             bulk_write_req.append(UpdateMany(**req))
         res = await self.collection_model.get_motor_collection().bulk_write(bulk_write_req, ordered=ordered)
 
