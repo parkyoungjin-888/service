@@ -21,4 +21,5 @@ poetry install --no-root
 ```
 
 ## History
-+ v0.1.0: init
++ 0.1.0: init
++ 0.1.1: 내부 모듈 버전업 적용
