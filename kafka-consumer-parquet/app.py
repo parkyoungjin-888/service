@@ -56,6 +56,11 @@ s3_client = boto3.client(
     config=Config(signature_version='s3v4')
 )
 
+# Data Model 로드
+cache_manager = CacheManager(s3_client, 'cachefile')
+data_model_config = config.get_value('data_model')
+data_model = cache_manager.get_obj(**data_model_config)
+
 
 def parse_message(message):
     try:
@@ -64,8 +69,9 @@ def parse_message(message):
         event_datetime_str = json_msg.pop('event_datetime_str')
         datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
         json_msg['event_datetime'] = datetime.strptime(event_datetime_str, datetime_format)
-        json_msg['start_time'] = start_time
-        return 'singleton', json_msg
+        doc = data_model(**json_msg).model_dump()
+        doc['start_time'] = start_time
+        return 'singleton', doc
     except Exception as e:
         logger.error(f"[parse_message] Error: {e}")
         return None
@@ -111,7 +117,7 @@ def save_to_parquet(batch):
         if batch_size > 0:
             CONSUMING_LATENCY.observe((time.time() - start_time)/batch_size)
     except Exception as e:
-        logger.error(f"[save_to_minio] Error: {e}")
+        logger.error(f"[save_to_parquet] Error: {e}")
 
 
 flow = Dataflow('kafka-consumer-parquet')

@@ -22,5 +22,6 @@ poetry install --no-root
 
 ## History
 + 0.1.0: init
++ 0.1.1: data model 로 검증 하도록 수정(스키마 불일치 오류 방지)
 
 python -m bytewax.run app
