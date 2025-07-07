@@ -84,7 +84,7 @@ def parse_message(message):
         }
         doc = data_model(**doc).model_dump()
         doc.update({'img_bytes': json_msg['img'], 'start_time': start_time})
-        return doc
+        return 'singleton', doc
     except Exception as e:
         logger.error(f"[parse_message] Error: {e}")
         return None
