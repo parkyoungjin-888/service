@@ -95,8 +95,10 @@ def save_to_mongo(batch):
         if not batch:
             return
 
+        key, records = batch
+
         img_data_list = []
-        for key, doc in batch:
+        for doc in records:
             img_bytes = doc.pop('img_bytes')
             start_time = doc.pop('start_time')
             mongo_collection.update_one({'name': doc['name']}, {'$set': doc}, upsert=True)
