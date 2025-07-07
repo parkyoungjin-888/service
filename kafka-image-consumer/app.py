@@ -2,7 +2,7 @@ from config_module import init_config_and_logger
 import time
 import json
 import base64
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from prometheus_client import Counter, Histogram, start_http_server
 import boto3
@@ -28,6 +28,9 @@ start_http_server(config.get_value('prometheus_port'))
 CONSUMING_LATENCY = Histogram('consuming_latency_seconds', 'End-to-end message processing latency')
 CONSUMING_COUNT = Counter('consuming_count', 'Total number of processed messages')
 
+app_config = config.get_value('app')
+app_pooling = timedelta(seconds=app_config['pooling'])
+app_max_count = app_config['max_count']
 
 # Kafka
 kafka_config = config.get_value('kafka')
@@ -87,28 +90,38 @@ def parse_message(message):
         return None
 
 
-def save_to_mongo(doc):
+def save_to_mongo(batch):
     try:
-        img_bytes = doc.pop('img_bytes')
-        start_time = doc.pop('start_time')
-        mongo_collection.update_one({'name': doc['name']}, {'$set': doc}, upsert=True)
-        img_data = {'img_bytes': img_bytes, 'img_path': doc['img_path'], 'start_time': start_time}
-        return img_data
+        if not batch:
+            return
+
+        img_data_list = []
+        for key, doc in batch:
+            img_bytes = doc.pop('img_bytes')
+            start_time = doc.pop('start_time')
+            mongo_collection.update_one({'name': doc['name']}, {'$set': doc}, upsert=True)
+            img_data = {'img_bytes': img_bytes, 'img_path': doc['img_path'], 'start_time': start_time}
+            img_data_list.append(img_data)
+        return img_data_list
     except Exception as e:
         logger.error(f"[save_to_mongo] Error: {e}")
         return None
 
 
-def save_to_minio(img_data):
+def save_to_minio(img_data_list):
     try:
-        image_bytes = base64.b64decode(img_data['img_bytes'])
-        s3_client.put_object(
-            Bucket=minio_config['bucket'],
-            Key=img_data['img_path'],
-            Body=image_bytes
-        )
-        CONSUMING_COUNT.inc()
-        CONSUMING_LATENCY.observe(time.time() - img_data['start_time'])
+        if not img_data_list:
+            return
+
+        for img_data in img_data_list:
+            image_bytes = base64.b64decode(img_data['img_bytes'])
+            s3_client.put_object(
+                Bucket=minio_config['bucket'],
+                Key=img_data['img_path'],
+                Body=image_bytes
+            )
+            CONSUMING_COUNT.inc()
+            CONSUMING_LATENCY.observe(time.time() - img_data['start_time'])
     except Exception as e:
         logger.error(f"[save_to_minio] Error: {e}")
 
@@ -116,14 +129,10 @@ def save_to_minio(img_data):
 flow = Dataflow('kafka-image-consumer')
 
 kafka_input = op.input('kafka-in', flow, kafka_source)
-
 parsed = op.map('parse', kafka_input, parse_message)
-parsed_filtered = op.filter('filter-parse', parsed, lambda x: x is not None)
-
-saved_mongo = op.map('save-mongo', parsed_filtered, save_to_mongo)
-saved_filtered = op.filter('filter-save', saved_mongo, lambda x: x is not None)
-
-saved_minio = op.map('save-minio', saved_filtered, save_to_minio)
+batched = op.collect('collection', parsed, timeout=app_pooling, max_size=app_max_count)
+saved_mongo = op.map('save-mongo', batched, save_to_mongo)
+saved_minio = op.map('save-minio', saved_mongo, save_to_minio)
 op.output('stdout', saved_minio, StdOutSink())
 
 

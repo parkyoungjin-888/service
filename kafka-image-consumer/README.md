@@ -24,5 +24,6 @@ poetry install --no-root
 + 0.1.0: init
 + 0.1.1: bytewax 을 사용한 스트리밍 구조로 수정, github action 변경 후 재빌드2
 + 0.1.2: images data model 에 updated_datetime 추가 반영
++ 0.1.3: 폴링 적용
 
 python -m bytewax.run app
