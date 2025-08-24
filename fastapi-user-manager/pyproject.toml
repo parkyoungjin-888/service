@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "fastapi-user-manager"
+version = "0.1.0"
+description = ""
+authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.6"
+uvicorn = "^0.34.0"
+config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
+fastapi_module = { git = "https://github.com/parkyoungjin-888/fastapi_module.git" }
+jinja2 = "^3.1.4"
+websockets = "^15.0"
+httpx = "^0.28.1"
+sqlalchemy = "^2.0.41"
+asyncpg = "^0.30.0"
+alembic = "^1.16.4"
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+pydantic = {extras = ["email"], version = "^2.11.7"}
+bcrypt = "<4.0.0"
+python-multipart = "^0.0.20"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

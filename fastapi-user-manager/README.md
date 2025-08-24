@@ -1,0 +1,24 @@
+# fastapi-user-manager
+
+user table 을 관리하는 api 서버
+
+## Index
+
+- [Installation](#installation)
+- [History](#History)
+
+## Installation
+
+Instructions for setting up the project.
+
+```bash
+# Clone the repository
+git clone https://github.com/parkyoungjin-888/service.git
+
+# Install dependencies using Poetry
+cd fastapi-user-manager
+poetry install --no-root
+```
+
+## History
++ 0.1.0: init
