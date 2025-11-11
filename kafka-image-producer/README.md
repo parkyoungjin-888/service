@@ -25,3 +25,4 @@ poetry install --no-root
 + 0.1.1: redis_module, kafka_module 레포지토리 변경
 + 0.1.2: redis 모듈 버전업
 + 0.1.3: utils, config, kafka 모듈 버전업
++ 0.1.4: data_model_module 제거
