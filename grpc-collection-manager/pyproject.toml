@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "grpc-collection-manager"
-version = "0.1.7"
+version = "0.1.8"
 description = ""
 authors = ["parkyoungjin-888 <pyj8813@gmail.com>"]
 readme = "README.md"
@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.12"
 config_module = { git = "https://github.com/parkyoungjin-888/config_module.git" }
 mongodb_module = { git = "https://github.com/parkyoungjin-888/mongodb_module.git" }
+data_model_module = { git = "https://github.com/parkyoungjin-888/data_model_module.git" }
 pymongo = "4.8"
 
 

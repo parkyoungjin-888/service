@@ -9,13 +9,13 @@ from google.protobuf import struct_pb2
 from pymongo import UpdateMany
 from datetime import datetime
 from beanie import UpdateResponse
+from pydantic import BaseModel
 
 from mongodb_module.proto import collection_pb2 as pb2
 from mongodb_module.proto.collection_pb2_grpc import CollectionServerServicer
 from config_module.config_singleton import ConfigSingleton
 from utils_module.logger import LoggerSingleton
 from utils_module.log_decorator import log_decorator
-from utils_module.cache_manager import CacheManager
 from mongodb_module.beanie_control import BaseDocument
 
 
@@ -106,13 +106,12 @@ def convert_field_type(value):
 
 
 class CollectionServer(CollectionServerServicer):
-    def __init__(self, data_model: BaseDocument, cache_manager: CacheManager, data_model_file: str):
+    def __init__(self, data_model: BaseDocument, project_model_dict: dict[BaseModel]):
         self.collection_model = data_model
-        self.cache_manager = cache_manager
-        self.data_model_file = data_model_file
+        self.project_model_dict = project_model_dict
 
     def _get_project_model(self, model_name) -> Type[BaseModel]:
-        project_model = self.cache_manager.get_obj(self.data_model_file, model_name)
+        project_model = self.project_model_dict[model_name]
         return project_model
 
     def _get_query_request_data(self, request):
