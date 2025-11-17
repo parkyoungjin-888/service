@@ -3,6 +3,7 @@ import time
 import json
 import base64
 from datetime import datetime, timezone, timedelta
+from data_model_module.data_model_loader import get_data_model
 
 from prometheus_client import Counter, Histogram, start_http_server
 import boto3
@@ -14,10 +15,8 @@ from bytewax.connectors.stdio import StdOutSink
 from bytewax.dataflow import Dataflow
 from bytewax import operators as op
 
-from utils_module.cache_manager import CacheManager
 
-
-local_config_host = '192.168.0.104'
+local_config_host = '192.168.35.104'
 local_config_port = 21001
 local_app_id = 'local-kafka-image-consumer'
 config, logger = init_config_and_logger(local_config_host, local_config_port, local_app_id)
@@ -60,9 +59,8 @@ s3_client = boto3.client(
 )
 
 # Data Model 로드
-cache_manager = CacheManager(s3_client, 'cachefile')
 data_model_config = config.get_value('data_model')
-data_model = cache_manager.get_obj(**data_model_config)
+data_model, _ = get_data_model(**data_model_config)
 
 
 def parse_message(message):
@@ -104,6 +102,7 @@ def save_to_mongo(batch):
             mongo_collection.update_one({'name': doc['name']}, {'$set': doc}, upsert=True)
             img_data = {'img_bytes': img_bytes, 'img_path': doc['img_path'], 'start_time': start_time}
             img_data_list.append(img_data)
+            time.sleep(0.01)
         return img_data_list
     except Exception as e:
         logger.error(f"[save_to_mongo] Error: {e}")
@@ -122,6 +121,7 @@ def save_to_minio(img_data_list):
                 Key=img_data['img_path'],
                 Body=image_bytes
             )
+            time.sleep(0.01)
             CONSUMING_COUNT.inc()
             CONSUMING_LATENCY.observe(time.time() - img_data['start_time'])
     except Exception as e:
