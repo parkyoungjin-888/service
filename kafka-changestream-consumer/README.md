@@ -22,3 +22,4 @@ poetry install --no-root
 
 ## History
 + v0.1.0: init
++ v0.1.1: 캐쉬 매니저를 사용 하지 않게 수정

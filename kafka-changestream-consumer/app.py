@@ -6,7 +6,7 @@ from utils_module.logger import LoggerSingleton
 
 # region ############################## config section ##############################
 
-local_config_host = '192.168.0.104'
+local_config_host = '192.168.35.104'
 local_config_port = 21001
 local_app_id = 'local-kafka-changestream-consumer'
 
@@ -29,7 +29,8 @@ logger = LoggerSingleton.get_logger(f'{app_config["name"]}.main', level=log_leve
 import boto3
 from botocore.client import Config
 from kafka_module.kafka_consumer import KafkaConsumerControl
-from utils_module.cache_manager import CacheManager
+from data_model_module.data_model_loader import get_data_model
+from src.handler.images_event_handler import ImagesEventHandler
 
 
 minio_config = config.get_value('minio')
@@ -42,14 +43,13 @@ s3_client = boto3.client('s3',
 kafka_config = config.get_value('kafka')
 kafka_consumer = KafkaConsumerControl(**kafka_config)
 
-cache_manager = CacheManager(s3_client, minio_config['bucket'])
+data_model_config = config.get_value('data_model')
+data_model, _ = get_data_model(**data_model_config)
 
-handler_config = config.get_value('handler')
-EventHandlerClass = cache_manager.get_obj(**handler_config)
-event_handle = EventHandlerClass(cache_manager, s3_client)
+event_handle = ImagesEventHandler(data_model, s3_client)
 
 # endregion
 
 
 if __name__ == '__main__':
-    kafka_consumer.start_consumer(event_handle.process)
+    kafka_consumer.start_consumer_sync(event_handle.process)
